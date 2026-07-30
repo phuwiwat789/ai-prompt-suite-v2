@@ -1,0 +1,458 @@
+
+====================================
+FILE: src\app\app.js
+====================================
+
+import { loadPage } from "./router.js";
+
+export function startApplication() {
+
+    console.log("AI Prompt Suite Infinite v2.0");
+
+    loadPage("dashboard");
+
+}
+
+====================================
+FILE: src\app\config.js
+====================================
+
+// ========================================
+// AI Prompt Suite Infinite v2.0
+// Global Configuration
+// ========================================
+
+export const APP_CONFIG = {
+
+    APP_NAME: "AI Prompt Suite Infinite",
+
+    VERSION: "2.0.0",
+
+    AUTHOR: "Phuwiwat",
+
+    DEBUG: true,
+
+    FIREBASE_COLLECTIONS: {
+
+        USERS: "users",
+
+        HISTORY: "history",
+
+        FAVORITES: "favorites",
+
+        LOGS: "logs"
+
+    }
+
+};
+
+====================================
+FILE: src\app\router.js
+====================================
+
+import Dashboard from "../pages/dashboard.js";
+import PromptPage from "../pages/prompt.js";
+import LibraryPage from "../pages/library.js";
+import FavoritePage from "../pages/favorite.js";
+import HistoryPage from "../pages/history.js";
+import SettingsPage from "../pages/settings.js";
+import NotFound from "../pages/notfound.js";
+
+const routes = {
+    "/": Dashboard,
+    "/dashboard": Dashboard,
+    "/prompt": PromptPage,
+    "/library": LibraryPage,
+    "/favorite": FavoritePage,
+    "/history": HistoryPage,
+    "/settings": SettingsPage
+};
+
+export default function Router(path){
+
+    return routes[path]
+        ? routes[path]()
+        : NotFound();
+
+}
+
+====================================
+FILE: src\auth\auth.js
+====================================
+
+
+
+====================================
+FILE: src\auth\permission.js
+====================================
+
+
+
+====================================
+FILE: src\components\loading.js
+====================================
+
+
+
+====================================
+FILE: src\components\modal.js
+====================================
+
+
+
+====================================
+FILE: src\components\navbar.js
+====================================
+
+export function Navbar() {
+  return `
+    <header class="navbar">
+      <div class="logo">
+        🚀 AI Prompt Suite Infinite
+      </div>
+
+      <div class="user">
+        <span id="user-email">Guest</span>
+      </div>
+    </header>
+  `;
+}
+
+====================================
+FILE: src\components\sidebar.js
+====================================
+
+export function Sidebar() {
+
+    return `
+
+    <aside class="sidebar">
+
+        <ul>
+
+            <li>🏠 Dashboard</li>
+
+            <li>🤖 Prompt Builder</li>
+
+            <li>📚 Library</li>
+
+            <li>⭐ Favorite</li>
+
+            <li>📜 History</li>
+
+            <li>⚙ Settings</li>
+
+        </ul>
+
+    </aside>
+
+    `;
+
+}
+
+====================================
+FILE: src\components\toast.js
+====================================
+
+
+
+====================================
+FILE: src\data\audience.js
+====================================
+
+
+
+====================================
+FILE: src\data\models.js
+====================================
+
+
+
+====================================
+FILE: src\data\personas.js
+====================================
+
+
+
+====================================
+FILE: src\data\styles.js
+====================================
+
+
+
+====================================
+FILE: src\data\tasks.js
+====================================
+
+
+
+====================================
+FILE: src\firebase\firebase.js
+====================================
+
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC82oWa8SfrYdidYrpNNAQ_bRdCHr3cYhE",
+  authDomain: "ai-prompt-system.firebaseapp.com",
+  projectId: "ai-prompt-system",
+  storageBucket: "ai-prompt-system.firebasestorage.app",
+  messagingSenderId: "429900246569",
+  appId: "1:429900246569:web:4b94b2f1eb5e3594dff638",
+  measurementId: "G-CCFMJPPVY4"
+};
+
+const app = initializeApp(firebaseConfig);
+
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+export default app;
+
+====================================
+FILE: src\layouts\mainLayout.js
+====================================
+
+import Navbar from "../components/navbar.js";
+import Sidebar from "../components/sidebar.js";
+
+export default function MainLayout(content){
+
+return `
+
+<div class="app">
+
+${Navbar()}
+
+<div class="body">
+
+${Sidebar()}
+
+<div class="content">
+
+${content}
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+====================================
+FILE: src\main.js
+====================================
+
+import "./styles/main.css";
+
+import { startApplication } from "./app/app.js";
+
+startApplication();
+
+====================================
+FILE: src\pages\dashboard.js
+====================================
+
+import { Navbar } from "../components/navbar.js";
+import { Sidebar } from "../components/sidebar.js";
+
+export function DashboardPage() {
+
+    return `
+
+    ${Navbar()}
+
+    <div class="layout">
+
+        ${Sidebar()}
+
+        <main class="workspace">
+
+            <h1>
+
+                Dashboard
+
+            </h1>
+
+            <p>
+
+                Welcome to AI Prompt Suite Infinite
+
+            </p>
+
+        </main>
+
+    </div>
+
+    `;
+
+}
+
+====================================
+FILE: src\pages\favorite.js
+====================================
+
+
+
+====================================
+FILE: src\pages\history.js
+====================================
+
+
+
+====================================
+FILE: src\pages\library.js
+====================================
+
+
+
+====================================
+FILE: src\pages\login.js
+====================================
+
+
+
+====================================
+FILE: src\pages\notfound.js
+====================================
+
+
+
+====================================
+FILE: src\pages\prompt.js
+====================================
+
+
+
+====================================
+FILE: src\pages\settings.js
+====================================
+
+
+
+====================================
+FILE: src\prompt\builder.js
+====================================
+
+
+
+====================================
+FILE: src\prompt\exporter.js
+====================================
+
+
+
+====================================
+FILE: src\prompt\generator.js
+====================================
+
+
+
+====================================
+FILE: src\prompt\validator.js
+====================================
+
+
+
+====================================
+FILE: src\services\analytics.js
+====================================
+
+
+
+====================================
+FILE: src\services\firestore.js
+====================================
+
+
+
+====================================
+FILE: src\services\logger.js
+====================================
+
+
+
+====================================
+FILE: src\services\storage.js
+====================================
+
+
+
+====================================
+FILE: src\styles\main.css
+====================================
+
+body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#0f172a;
+    color:white;
+}
+
+.navbar{
+    height:60px;
+    background:#1e293b;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 24px;
+}
+
+.layout{
+    display:flex;
+    height:calc(100vh - 60px);
+}
+
+.sidebar{
+    width:240px;
+    background:#111827;
+    padding:20px;
+}
+
+.sidebar ul{
+    list-style:none;
+    padding:0;
+}
+
+.sidebar li{
+    padding:12px;
+    cursor:pointer;
+}
+
+.sidebar li:hover{
+    background:#1f2937;
+}
+
+.workspace{
+    flex:1;
+    padding:30px;
+}
+
+====================================
+FILE: src\styles\variables.css
+====================================
+
+
+
+====================================
+FILE: src\utils\formatter.js
+====================================
+
+
+
+====================================
+FILE: src\utils\helper.js
+====================================
+
+
+
+====================================
+FILE: src\utils\validator.js
+====================================
+
+
