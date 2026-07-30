@@ -1,32 +1,21 @@
+// src/firebase/config.js
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getAnalytics } from "firebase/analytics";
 
-// Updated Firebase configuration (from user-provided block)
 const firebaseConfig = {
   apiKey: "AIzaSyC82oWa8SfrYdidYrpNNAQ_bRdCHr3cYhE",
   authDomain: "ai-prompt-system.firebaseapp.com",
   projectId: "ai-prompt-system",
   storageBucket: "ai-prompt-system.firebasestorage.app",
   messagingSenderId: "429900246569",
-  appId: "1:429900246569:web:82635f3da24ebe8adff638",
-  measurementId: "G-N3DZFY58G4"
+  appId: "1:429900246569:web:4b94b2f1eb5e3594dff638",
+  measurementId: "G-CCFMJPPVY4"
 };
 
 const app = initializeApp(firebaseConfig);
 
-// Initialize optional analytics if available in the environment
-let analytics;
-try {
-  analytics = getAnalytics(app);
-} catch (err) {
-  // Analytics may fail in non-browser or restricted environments; ignore silently
-  // console.debug('Firebase analytics not initialized:', err?.message);
-}
-
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export { analytics };
 
 export default app;

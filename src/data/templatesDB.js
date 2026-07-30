@@ -26,6 +26,6 @@ export const templatesDB = [
         title: "วางกลยุทธ์ Content Plan 30 วัน",
         category: "Creator",
         tags: ["Content Plan", "Social Media", "Strategy"],
-        prompt: "วางแผนคอนเทนต์สำหรับแพลตฟอร์ม [ระบุแพลตฟอร์ม] ระยะเวลา 30 วัน สำหรับธุรกิจ [ระบุประเภทธุรกิจ] โดยแบ่งสัดส่วนเป็น Content ให้ความรู้ 40%, Content สร้าง ความผูกพัน 30%, Content ขาย 20% และ Viral Content 10%"
+        prompt: "วางแผนคอนเทนต์สำหรับแพลตฟอร์ม [ระบุแพลตฟอร์ม] ระยะเวลา 30 วัน สำหรับธุรกิจ [ระบุประเภทธุรกิจ] โดยแบ่งสัดส่วนเป็น Content ให้ความรู้ 40%, Content สร้างความผูกพัน 30%, Content ขาย 20% และ Viral Content 10%"
     }
 ];

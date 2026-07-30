@@ -2,47 +2,60 @@
 import { codingLanguagesDB } from "../data/codingLanguages.js";
 
 export default function CodingPage() {
-    // Build options for codingLangSelect from codingLanguagesDB
-    const options = Object.entries(codingLanguagesDB).map(([k, v]) => `<option value="${k}">${v.name}</option>`).join("\n");
+    const options = Object.entries(codingLanguagesDB)
+        .map(([k, v]) => `<option value="${k}">${v.name}</option>`)
+        .join("\n");
 
     return `
-    <div class="max-w-6xl mx-auto p-6">
-        <div class="mb-6 border-b border-slate-800 pb-4">
-            <h1 class="text-2xl font-black text-white mt-1">💻 Coding Assistant</h1>
-            <p class="text-xs text-slate-400 mt-0.5">สร้าง prompt สำหรับเขียนโค้ดตามมาตรฐานความปลอดภัยระดับสูง</p>
+    <div class="max-w-6xl mx-auto p-4 sm:p-6">
+        <div class="page-card p-6 mb-6">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <div class="badge-cyber">Coding Studio</div>
+                    <h1 class="text-3xl font-black text-white mt-4">💻 Coding Assistant</h1>
+                    <p class="text-sm text-slate-400 mt-2">สร้าง prompt สำหรับเขียนโค้ดตามมาตรฐานความปลอดภัยระดับสูง</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge-cyber">Dev Flow</span>
+                    <span class="badge-cyber">SaaS Ready</span>
+                </div>
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <div class="lg:col-span-5 bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4 shadow-xl">
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">🧑‍💻 ภาษาโปรแกรม</label>
-                    <select id="codingLangSelect" class="w-full p-2 border border-slate-700 rounded-xl bg-slate-950 text-xs text-white">
+        <div class="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-6">
+            <div class="page-panel p-6 space-y-5">
+                <div class="section-panel space-y-4">
+                    <div class="section-tag">[LANGUAGE]</div>
+                    <label class="block text-sm font-semibold text-slate-300">ภาษาโปรแกรม</label>
+                    <select id="codingLangSelect" class="w-full p-3 border border-slate-700 rounded-3xl bg-[#081627] text-sm text-white">
                         ${options}
                     </select>
+                    <div id="codingLangDesc" class="text-sm text-slate-400"></div>
                 </div>
 
-                <div id="codingLangDesc" class="text-sm text-slate-400 mt-2"></div>
+                <div id="codingDynamicFields" class="space-y-3"></div>
 
-                <div id="codingDynamicFields" class="space-y-3 mt-3"></div>
-
-                <div class="flex items-center gap-2 pt-2 border-t border-slate-800">
-                    <input type="checkbox" id="includeTestsCheck" class="w-4 h-4 rounded bg-slate-950 accent-indigo-500 cursor-pointer">
-                    <label for="includeTestsCheck" class="text-[10px] text-slate-400">รวม Unit Tests</label>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" id="codingComplianceCheck" class="w-4 h-4 rounded bg-slate-950 accent-emerald-400 cursor-pointer">
-                    <label for="codingComplianceCheck" class="text-[10px] text-emerald-400">เปิดโหมดรักษาความปลอดภัยข้อมูล (PDPA/GDPR)</label>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4 pt-2 border-t border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="includeTestsCheck" class="w-5 h-5 rounded-full bg-[#11203e] accent-[#5eead4] cursor-pointer">
+                        <label for="includeTestsCheck" class="text-sm text-slate-300">รวม Unit Tests</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="codingComplianceCheck" class="w-5 h-5 rounded-full bg-[#11203e] accent-[#5eead4] cursor-pointer" checked>
+                        <label for="codingComplianceCheck" class="text-sm text-[#7dd3fc]">เปิดโหมดรักษาความปลอดภัยข้อมูล (PDPA/GDPR)</label>
+                    </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-7 bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between shadow-inner">
-                <div>
-                    <div class="flex flex-wrap items-center gap-3 mb-3">
-                        <button id="codingFavBtn" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 text-sm font-bold py-2 px-4 rounded-xl transition duration-200 flex items-center gap-2 shadow">⭐ เก็บเข้ารายการโปรด</button>
-                        <button id="codingCopyBtn" class="bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-700 text-sm font-bold text-white py-2 px-4 rounded-xl shadow-lg transition duration-200">📋 คัดลอกคำสั่ง</button>
-                    </div>
-                    <pre id="codingOutput" class="whitespace-pre-wrap text-[13px] leading-relaxed text-slate-300 max-h-[60vh] md:h-[500px] overflow-y-auto bg-slate-900/50 p-4 rounded-xl border border-slate-800/80 font-mono select-all"></pre>
+            <div class="terminal-box flex flex-col overflow-hidden">
+                <div class="terminal-header">
+                    <span class="terminal-label">CODE PROMPT</span>
+                    <span class="badge-cyber">AI Ready</span>
+                </div>
+                <div class="terminal-body" id="codingOutput"></div>
+                <div class="flex flex-wrap gap-3 p-5 border-t border-slate-800/40 bg-[#091827]">
+                    <button id="codingFavBtn" class="pill-btn pill-btn-secondary">⭐ เก็บเข้ารายการโปรด</button>
+                    <button id="codingCopyBtn" class="pill-btn pill-btn-primary">📋 คัดลอกคำสั่ง</button>
                 </div>
             </div>
         </div>

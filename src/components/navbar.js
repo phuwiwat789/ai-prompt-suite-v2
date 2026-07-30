@@ -1,13 +1,23 @@
-// src/components/navbar.js
+﻿// src/components/navbar.js
 export default function Navbar() {
   return `
-    <header class="navbar bg-slate-900 border-b border-slate-800 p-3 md:p-4 flex items-center justify-between sticky top-0 z-30">
-      <div class="flex items-center gap-3">
-        <button id="sidebarToggle" class="md:hidden p-2 rounded-lg bg-slate-800 text-slate-200" aria-label="Toggle navigation" aria-expanded="false">☰</button>
-        <div class="logo text-sm font-bold text-indigo-300">🚀 AI Prompt Suite</div>
+    <header class="navbar page-header navbar-horizontal">
+      <div class="navbar-brand">
+        <div class="logo">🚀 AI Prompt Suite Infinite</div>
+        <div class="nav-subtitle">Cyber Pill Navigation</div>
       </div>
-      <div class="flex items-center gap-3">
-        <div class="hidden sm:block text-xs text-slate-400">Signed in as <span id="user-email">Guest</span></div>
+      <nav id="topNav" class="nav-pill-bar" role="navigation" aria-label="Primary navigation">
+        <button data-path="/dashboard" class="nav-pill" type="button">🏠 Dashboard</button>
+        <button data-path="/prompt" class="nav-pill" type="button">🤖 Prompt Builder</button>
+        <button data-path="/creator" class="nav-pill" type="button">🎨 Creator Studio</button>
+        <button data-path="/coding" class="nav-pill" type="button">💻 Coding Assistant</button>
+        <button data-path="/library" class="nav-pill" type="button">📚 Library</button>
+        <button data-path="/favorite" class="nav-pill" type="button">⭐ Favorites</button>
+        <button data-path="/history" class="nav-pill" type="button">📜 History</button>
+        <button data-path="/settings" class="nav-pill" type="button">⚙️ Settings</button>
+      </nav>
+      <div class="nav-right">
+        <div class="user-badge">Guest</div>
       </div>
     </header>
   `;

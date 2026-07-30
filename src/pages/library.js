@@ -1,27 +1,36 @@
 // src/pages/library.js
 export function LibraryPage() {
     return `
-    <div class="max-w-6xl mx-auto p-6">
-        <div class="mb-6 border-b border-slate-800 pb-4">
-            <span class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest">Curated Collection</span>
-            <h1 class="text-2xl font-black text-white mt-1">📚 Prompt Library</h1>
-            <p class="text-xs text-slate-400 mt-0.5">คลังคำสั่งแม่แบบสำเร็จรูปที่ผ่านการทดสอบคุณภาพ พร้อมใช้งานทันที</p>
+    <div class="max-w-6xl mx-auto p-4 sm:p-6">
+        <div class="page-card p-6 mb-6">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <div class="badge-cyber">Curated Collection</div>
+                    <h1 class="text-3xl font-black text-white mt-4">📚 Prompt Library</h1>
+                    <p class="text-sm text-slate-400 mt-2">คลังคำสั่งแม่แบบสำเร็จรูปที่ผ่านการทดสอบคุณภาพ พร้อมใช้งานทันที</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge-cyber">Template Hub</span>
+                    <span class="badge-cyber">Instant Copy</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Search & Filter Bar -->
-        <div class="mb-6 flex flex-col md:flex-row gap-4">
-            <input type="text" id="librarySearchInput" placeholder="🔍 ค้นหาแม่แบบ เช่น สรุปบทความ, Cold Email, Refactor..." class="flex-1 p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500" />
-            <select id="libraryCategorySelect" class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold text-indigo-300">
-                <option value="ALL">ทุกหมวดหมู่ (All Categories)</option>
-                <option value="Business">💼 Business</option>
-                <option value="Marketing">📢 Marketing</option>
-                <option value="Coding">💻 Coding</option>
-                <option value="Creator">🎨 Creator</option>
-            </select>
+        <div class="grid grid-cols-1 gap-6">
+            <div class="page-panel p-5">
+                <div class="grid grid-cols-1 lg:grid-cols-[1fr_0.45fr] gap-4">
+                    <input type="text" id="librarySearchInput" placeholder="🔍 ค้นหาแม่แบบ เช่น สรุปบทความ, Cold Email, Refactor..." class="w-full p-3 bg-[#081627] border border-slate-700 rounded-3xl text-sm text-white focus:outline-none focus:border-indigo-500" />
+                    <select id="libraryCategorySelect" class="w-full p-3 bg-[#081627] border border-slate-700 rounded-3xl text-sm font-semibold text-indigo-300">
+                        <option value="ALL">ทุกหมวดหมู่ (All Categories)</option>
+                        <option value="Business">💼 Business</option>
+                        <option value="Marketing">📢 Marketing</option>
+                        <option value="Coding">💻 Coding</option>
+                        <option value="Creator">🎨 Creator</option>
+                    </select>
+                </div>
+            </div>
+            <div id="libraryCardsGrid" class="card-grid"></div>
         </div>
-
-        <!-- Cards Grid Container -->
-        <div id="libraryCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </div>
     `;
 }

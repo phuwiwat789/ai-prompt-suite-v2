@@ -1,7 +1,4 @@
-// ==========================================
-// FILE: src/app/router.js
-// ==========================================
-
+// src/app/router.js
 import MainLayout from "../layouts/mainLayout.js";
 import { initPromptBuilder } from "../prompt/builder.js";
 import { initCreatorBuilder } from "../prompt/creatorBuilder.js";
@@ -53,39 +50,30 @@ export function render(path) {
     const appContainer = document.getElementById("app") || document.body;
     appContainer.innerHTML = MainLayout(contentHtml);
     
-    // 3. ⭐ ตรวจสอบ Path: หากเปิดหน้า Prompt Builder ให้เปิดใช้งานฟังก์ชันโต้ตอบทันที
-    if (path === "/prompt") {
+    // 3. ตรวจสอบ Path และเปิดใช้งานฟังก์ชันโต้ตอบ
+    if (path === "/prompt" && typeof initPromptBuilder === "function") {
         initPromptBuilder();
-    } else if (path === "/creator") {
+    } else if (path === "/creator" && typeof initCreatorBuilder === "function") {
         initCreatorBuilder();
-    } else if (path === "/coding") {
+    } else if (path === "/coding" && typeof initCodingBuilder === "function") {
         initCodingBuilder();
     }
 
-    // ถ้าเปิดหน้า Library ให้เรียกตัวจัดการ Library
-    if (path === "/library") {
+    if (path === "/library" && typeof initLibraryBuilder === "function") {
         initLibraryBuilder();
     }
-
-    // ถ้าเปิดหน้า Favorite ให้เรียกตัวจัดการ Favorite
-    if (path === "/favorite") {
+    if (path === "/favorite" && typeof initFavoriteBuilder === "function") {
         initFavoriteBuilder();
     }
-
-    // ถ้าเปิดหน้า History ให้เรียกตัวจัดการ History
-    if (path === "/history") {
+    if (path === "/history" && typeof initHistoryBuilder === "function") {
         initHistoryBuilder();
     }
-
-    // ถ้าเปิดหน้า Languages ให้เรียกตัวจัดการภาษา
-    if (path === "/languages") {
+    if (path === "/languages" && typeof initLanguageManager === "function") {
         initLanguageManager();
     }
 }
 
-// ฟังก์ชันสำหรับเรียกโหลดหน้าเริ่มต้น
 export function loadPage(path) {
-    // ปรับรูปแบบ path ให้มี "/" นำหน้าเสมอเพื่อความถูกต้องของระบบ routes
     const formattedPath = path.startsWith("/") ? path : `/${path}`;
     navigate(formattedPath);
 }

@@ -15,7 +15,7 @@ export function startApplication() {
 function initNavigation() {
     // ใช้ event click ที่ระดับ document เพื่อให้ปุ่มที่ถูกสร้างใหม่ทำงานได้เสมอ
     document.addEventListener("click", (e) => {
-        const menuItem = e.target.closest("li[data-path]");
+        const menuItem = e.target.closest("li[data-path], button[data-path]");
         if (menuItem) {
             const targetPath = menuItem.getAttribute("data-path");
             navigate(targetPath);
@@ -28,7 +28,6 @@ function initNavigation() {
             try {
                 const payload = JSON.parse(decodeURIComponent(useBtn.getAttribute('data-template')));
                 window.sessionStorage.setItem('selectedTemplate', JSON.stringify(payload));
-                // navigate to prompt using history API and trigger router
                 window.history.pushState({}, '', '/prompt');
                 window.dispatchEvent(new PopStateEvent('popstate'));
             } catch (err) {

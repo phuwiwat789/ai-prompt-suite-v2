@@ -1,4 +1,2691 @@
-﻿// src/app/app.js
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+docs/
+  API.md
+  ARCHITECTURE.md
+  CHANGELOG.md
+public/
+  _redirects
+src/
+  app/
+    app.js
+    config.js
+    router.js
+  auth/
+    auth.js
+    permission.js
+  components/
+    loading.js
+    modal.js
+    navbar.js
+    sidebar.js
+    toast.js
+    ui.js
+  data/
+    audience.js
+    codingLanguages.js
+    models.js
+    personas.js
+    styles.js
+    tasks.js
+    templatesDB.js
+  firebase/
+    firebase.js
+  layouts/
+    mainLayout.js
+  pages/
+    coding.js
+    creator.js
+    dashboard.js
+    favorite.js
+    history.js
+    languages.js
+    library.js
+    login.js
+    notfound.js
+    prompt.js
+    settings.js
+  prompt/
+    builder.js
+    codingBuilder.js
+    codingEngine.js
+    creatorBuilder.js
+    exporter.js
+    favoriteBuilder.js
+    generator.js
+    historyBuilder.js
+    languageManager.js
+    libraryBuilder.js
+    validator.js
+  services/
+    analytics.js
+    firestore.js
+    logger.js
+    storage.js
+  styles/
+    main.css
+    variables.css
+  utils/
+    formatter.js
+    helper.js
+    validator.js
+  main.js
+all_code.txt
+export-code.js
+.gitignore
+index.html
+package.json
+README.md
+vite.config.js
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="docs/API.md">
+
+</file>
+
+<file path="docs/ARCHITECTURE.md">
+
+</file>
+
+<file path="docs/CHANGELOG.md">
+
+</file>
+
+<file path="public/_redirects">
+/*  /index.html  200
+</file>
+
+<file path="src/app/app.js">
+// src/app/app.js
+import { render, navigate } from "./router.js";
+
+export function startApplication() {
+    console.log("AI Prompt Suite Infinite v2.0");
+
+    // 1. โหลดหน้าเพจปัจจุบัน (หรือไปที่ / ถ้าเพิ่งเปิดเว็บ)
+    const currentPath = window.location.pathname || "/";
+    render(currentPath);
+
+    // 2. เริ่มต้นระบบการคลิกเมนู (Event Delegation)
+    initNavigation();
+}
+
+function initNavigation() {
+    // ใช้ event click ที่ระดับ document เพื่อให้ปุ่มที่ถูกสร้างใหม่ทำงานได้เสมอ
+    document.addEventListener("click", (e) => {
+        const menuItem = e.target.closest("li[data-path]");
+        if (menuItem) {
+            const targetPath = menuItem.getAttribute("data-path");
+            navigate(targetPath);
+            return;
+        }
+
+        // ปุ่มใช้แม่แบบจาก Library: data-template contains encoded JSON
+        const useBtn = e.target.closest("button[data-template]");
+        if (useBtn) {
+            try {
+                const payload = JSON.parse(decodeURIComponent(useBtn.getAttribute('data-template')));
+                window.sessionStorage.setItem('selectedTemplate', JSON.stringify(payload));
+                // navigate to prompt using history API and trigger router
+                window.history.pushState({}, '', '/prompt');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+            } catch (err) {
+                console.error('Failed to load template', err);
+            }
+            return;
+        }
+
+        // ปุ่มคัดลอกคำสั่งบน Library
+        const copyBtn = e.target.closest('button[data-copytemplate]');
+        if (copyBtn) {
+            try {
+                const payload = JSON.parse(decodeURIComponent(copyBtn.getAttribute('data-copytemplate')));
+                navigator.clipboard.writeText(payload.prompt || '').then(() => {
+                    const old = copyBtn.innerText;
+                    copyBtn.innerText = '✅ คัดลอกแล้ว';
+                    setTimeout(() => copyBtn.innerText = old, 1500);
+                });
+            } catch (err) {
+                console.error('Failed to copy template', err);
+            }
+            return;
+        }
+    });
+
+    // รองรับปุ่ม Back / Forward บนเบราว์เซอร์
+    window.addEventListener("popstate", () => {
+        render(window.location.pathname);
+    });
+}
+</file>
+
+<file path="src/app/config.js">
+// ========================================
+// AI Prompt Suite Infinite v2.0
+// Global Configuration
+// ========================================
+
+export const APP_CONFIG = {
+
+    APP_NAME: "AI Prompt Suite Infinite",
+
+    VERSION: "2.0.0",
+
+    AUTHOR: "Phuwiwat",
+
+    DEBUG: true,
+
+    FIREBASE_COLLECTIONS: {
+
+        USERS: "users",
+
+        HISTORY: "history",
+
+        FAVORITES: "favorites",
+
+        LOGS: "logs"
+
+    }
+
+};
+</file>
+
+<file path="src/app/router.js">
+// ==========================================
+// FILE: src/app/router.js
+// ==========================================
+
+import MainLayout from "../layouts/mainLayout.js";
+import { initPromptBuilder } from "../prompt/builder.js";
+import { initCreatorBuilder } from "../prompt/creatorBuilder.js";
+import { initCodingBuilder } from "../prompt/codingBuilder.js";
+import { initLanguageManager } from "../prompt/languageManager.js";
+import { initLibraryBuilder } from "../prompt/libraryBuilder.js";
+import { initFavoriteBuilder } from "../prompt/favoriteBuilder.js";
+import { initHistoryBuilder } from "../prompt/historyBuilder.js";
+
+// นำเข้าหน้า Pages ทั้งหมด
+import { DashboardPage } from "../pages/dashboard.js";
+import PromptPage from "../pages/prompt.js";
+import CreatorPage from "../pages/creator.js";
+import CodingPage from "../pages/coding.js";
+import { LibraryPage } from "../pages/library.js";
+import { FavoritePage } from "../pages/favorite.js";
+import { HistoryPage } from "../pages/history.js";
+import { SettingsPage } from "../pages/settings.js";
+import { NotFound } from "../pages/notfound.js";
+import { LanguagesPage } from "../pages/languages.js";
+
+// รายการเส้นทางและหน้าเพจเป้าหมาย
+const routes = {
+    "/": DashboardPage,
+    "/dashboard": DashboardPage,
+    "/prompt": PromptPage,
+    "/creator": CreatorPage,
+    "/coding": CodingPage,
+    "/library": LibraryPage,
+    "/favorite": FavoritePage,
+    "/history": HistoryPage,
+    "/settings": SettingsPage,
+    "/languages": LanguagesPage
+};
+
+// ฟังก์ชันสำหรับเปลี่ยนหน้า (ใช้เชื่อมต่อกับปุ่มเมนูใน Sidebar)
+export function navigate(path) {
+    window.history.pushState({}, path, window.location.origin + path);
+    render(path);
+}
+
+// ฟังก์ชันหลักสำหรับแสดงผลและควบคุมหน้าเพจ
+export function render(path) {
+    // 1. ตรวจสอบว่ามีหน้าเพจนั้นหรือไม่ (ถ้าไม่มีให้ไปหน้า NotFound)
+    const pageComponent = routes[path] || NotFound;
+    const contentHtml = typeof pageComponent === "function" ? pageComponent() : "<h1>Page Error</h1>";
+    
+    // 2. นำเนื้อหามาใส่ใน Layout หลัก (มี Navbar & Sidebar)
+    const appContainer = document.getElementById("app") || document.body;
+    appContainer.innerHTML = MainLayout(contentHtml);
+    
+    // 3. ⭐ ตรวจสอบ Path: หากเปิดหน้า Prompt Builder ให้เปิดใช้งานฟังก์ชันโต้ตอบทันที
+    if (path === "/prompt") {
+        initPromptBuilder();
+    } else if (path === "/creator") {
+        initCreatorBuilder();
+    } else if (path === "/coding") {
+        initCodingBuilder();
+    }
+
+    // ถ้าเปิดหน้า Library ให้เรียกตัวจัดการ Library
+    if (path === "/library") {
+        initLibraryBuilder();
+    }
+
+    // ถ้าเปิดหน้า Favorite ให้เรียกตัวจัดการ Favorite
+    if (path === "/favorite") {
+        initFavoriteBuilder();
+    }
+
+    // ถ้าเปิดหน้า History ให้เรียกตัวจัดการ History
+    if (path === "/history") {
+        initHistoryBuilder();
+    }
+
+    // ถ้าเปิดหน้า Languages ให้เรียกตัวจัดการภาษา
+    if (path === "/languages") {
+        initLanguageManager();
+    }
+}
+
+// ฟังก์ชันสำหรับเรียกโหลดหน้าเริ่มต้น
+export function loadPage(path) {
+    // ปรับรูปแบบ path ให้มี "/" นำหน้าเสมอเพื่อความถูกต้องของระบบ routes
+    const formattedPath = path.startsWith("/") ? path : `/${path}`;
+    navigate(formattedPath);
+}
+
+export default function Router(path) {
+    render(path);
+}
+</file>
+
+<file path="src/auth/auth.js">
+
+</file>
+
+<file path="src/auth/permission.js">
+
+</file>
+
+<file path="src/components/loading.js">
+
+</file>
+
+<file path="src/components/modal.js">
+
+</file>
+
+<file path="src/components/navbar.js">
+// src/components/navbar.js
+export default function Navbar() {
+  return `
+    <header class="navbar page-header navbar-horizontal">
+      <div class="navbar-brand">
+        <div class="logo">🚀 AI Prompt Suite Infinite</div>
+        <div class="nav-subtitle">Cyber Pill Navigation</div>
+      </div>
+      <nav id="topNav" class="nav-pill-bar" role="navigation" aria-label="Primary navigation">
+        <button data-path="/dashboard" class="nav-pill" type="button">🏠 Dashboard</button>
+        <button data-path="/prompt" class="nav-pill" type="button">🤖 Prompt Builder</button>
+        <button data-path="/creator" class="nav-pill" type="button">🎨 Creator Studio</button>
+        <button data-path="/coding" class="nav-pill" type="button">💻 Coding Assistant</button>
+        <button data-path="/library" class="nav-pill" type="button">📚 Library</button>
+        <button data-path="/favorite" class="nav-pill" type="button">⭐ Favorites</button>
+        <button data-path="/history" class="nav-pill" type="button">📜 History</button>
+        <button data-path="/settings" class="nav-pill" type="button">⚙ Settings</button>
+      </nav>
+      <div class="nav-right">
+        <div class="user-badge">Guest</div>
+      </div>
+    </header>
+  `;
+}
+</file>
+
+<file path="src/components/sidebar.js">
+// src/components/sidebar.js
+export default function Sidebar() {
+    return `
+    <aside id="sidebar" class="hidden md:block w-full md:w-72 bg-[#070a12] border-r border-r-[#14314d] h-[calc(100vh-64px)] md:sticky md:top-16 p-4">
+        <div class="mb-6">
+            <div class="badge-cyber">NAV</div>
+            <div class="mt-4 text-sm font-extrabold text-[#7dd3fc]">Cyber Grid</div>
+        </div>
+        <ul id="sidebar-menu" class="space-y-2" role="menu" aria-label="Main navigation">
+            <li data-path="/dashboard" tabindex="0" role="menuitem" aria-label="Dashboard" class="sidebar-item">🏠 Dashboard</li>
+            <li data-path="/prompt" tabindex="0" role="menuitem" aria-label="Prompt Builder" class="sidebar-item">🤖 Prompt Builder</li>
+            <li data-path="/creator" tabindex="0" role="menuitem" aria-label="Creator Studio" class="sidebar-item">🎨 Creator Studio</li>
+            <li data-path="/coding" tabindex="0" role="menuitem" aria-label="Coding Assistant" class="sidebar-item">💻 Coding Assistant</li>
+            <li data-path="/library" tabindex="0" role="menuitem" aria-label="Library" class="sidebar-item">📚 Library</li>
+            <li data-path="/favorite" tabindex="0" role="menuitem" aria-label="Favorites" class="sidebar-item">⭐ Favorite</li>
+            <li data-path="/history" tabindex="0" role="menuitem" aria-label="History" class="sidebar-item">📜 History</li>
+            <li data-path="/settings" tabindex="0" role="menuitem" aria-label="Settings" class="sidebar-item">⚙ Settings</li>
+        </ul>
+    </aside>
+    `;
+}
+</file>
+
+<file path="src/components/toast.js">
+
+</file>
+
+<file path="src/components/ui.js">
+// src/components/ui.js
+// Small shared UI helpers (spinner, skeleton card) used by multiple builders
+export function Spinner(size = 24, text = '') {
+    return `
+    <div class="flex items-center justify-center gap-2">
+        <svg class="animate-spin text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="${size}" height="${size}">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+        ${text ? `<span class="text-xs text-slate-400">${text}</span>` : ''}
+    </div>
+    `;
+}
+
+export function SkeletonCard() {
+    return `
+    <div class="bg-slate-900 p-4 rounded-lg border border-slate-800 animate-pulse">
+        <div class="h-4 bg-slate-800 rounded w-1/3 mb-3"></div>
+        <div class="h-24 bg-slate-800 rounded mb-3"></div>
+        <div class="flex justify-end">
+            <div class="h-8 w-20 bg-slate-800 rounded"></div>
+        </div>
+    </div>
+    `;
+}
+</file>
+
+<file path="src/data/audience.js">
+
+</file>
+
+<file path="src/data/codingLanguages.js">
+// src/data/codingLanguages.js
+export const codingLanguagesDB = {
+    html: {
+        name: "🌐 HTML5 (Semantic & Accessibility)",
+        description: "เน้นโครงสร้าง Semantic HTML5, SEO Metadata และมาตรฐาน WAI-ARIA Accessibility",
+        fields: ["featureRequirement", "frameworkOrCss", "accessibilityLevel"]
+    },
+    css: {
+        name: "🎨 CSS3 / Tailwind / Animations",
+        description: "ออกแบบ Layout (Flexbox/Grid), Responsive Design, CSS Variables และ Keyframe Animations",
+        fields: ["layoutStyle", "targetComponents", "animationDetails"]
+    },
+    javascript: {
+        name: "⚡ Modern JavaScript (ES6+)",
+        description: "เขียน ES6+ Vanilla JS, DOM Manipulation, Async/Await Fetch API และ Clean Architecture",
+        fields: ["featureRequirement", "asyncHandling", "errorManagement"]
+    },
+    python: {
+        name: "🐍 Python (Clean Code & Scripting)",
+        description: "เน้นมาตรฐาน PEP 8, Type Hints, Exception Handling, API (FastAPI/Flask) หรือ Automation",
+        fields: ["taskGoal", "architecturePattern", "pythonVersion"]
+    },
+    php: {
+        name: "🐘 Modern PHP (8.x & OOP)",
+        description: "เน้น OOP Design Patterns, Security (Prepared Statements/PDO, CSRF, XSS) และ Clean Code",
+        fields: ["featureRequirement", "securityRules", "databaseHandling"]
+    },
+    flutter: {
+        name: "📱 Flutter & Dart (Cross-Platform)",
+        description: "เน้นการสร้าง UI Widget, State Management (Provider/Riverpod/Bloc) และ Clean Architecture",
+        fields: ["widgetRequirement", "stateManagement", "architectureLayer"]
+    },
+    react: {
+        name: "⚛️ React (Hooks & Functional Components)",
+        description: "เน้น Modern Functional Components, Custom Hooks, Performance Optimization (useMemo/useCallback)",
+        fields: ["componentTask", "stateStrategy", "stylingMethod"]
+    }
+};
+</file>
+
+<file path="src/data/models.js">
+// src/data/models.js
+export const aiModelsDB = {
+    // กลุ่มโมเดลข้อความ / การวิเคราะห์ / เขียนโค้ด
+    text: [
+        { id: "chatgpt", name: "ChatGPT (GPT-4o / o1)", provider: "OpenAI" },
+        { id: "claude", name: "Claude 3.5 Sonnet / Opus", provider: "Anthropic" },
+        { id: "gemini", name: "Gemini 1.5 Pro / Flash", provider: "Google" },
+        { id: "grok", name: "Grok 2 / Grok 3", provider: "xAI" },
+        { id: "deepseek", name: "DeepSeek V3 / R1", provider: "DeepSeek" }
+    ],
+    // กลุ่มโมเดลสร้างภาพและกราฟิก
+    image: [
+        { id: "midjourney", name: "Midjourney v6.1", provider: "Midjourney" },
+        { id: "flux", name: "Flux.1 (Dev / Schnell)", provider: "Black Forest Labs" },
+        { id: "ideogram", name: "Ideogram v2 (Typography & Graphic)", provider: "Ideogram" }
+    ]
+};
+</file>
+
+<file path="src/data/personas.js">
+// src/data/personas.js
+export const personasDB = {
+    "🏢 อสังหาริมทรัพย์และการลงทุน": [
+        "นายหน้าอสังหาริมทรัพย์ระดับ High-End",
+        "นักพัฒนาอสังหาริมทรัพย์เชิงพาณิชย์",
+        "นักลงทุนเน้นคุณค่า (Value Investor)",
+        "ที่ปรึกษาด้านการจัดการหนี้และสินเชื่อธุรกิจ"
+    ],
+    "💻 เทคโนโลยีและ IT": [
+        "Senior Solutions Architect",
+        "Data Scientist",
+        "Full-Stack AI Developer",
+        "UX/UI Designer"
+    ],
+    "📊 ธุรกิจและการเงิน": [
+        "ที่ปรึกษาธุรกิจระดับโลก (McKinsey Style)",
+        "ประธานเจ้าหน้าที่บริหาร (CEO)",
+        "นักบัญชีบริหาร (CMA)"
+    ],
+    "📢 การตลาดและการขาย": [
+        "นักกลยุทธ์การตลาดดิจิทัล (CMO)",
+        "นักเขียนคำโฆษณา (Copywriter)",
+        "ผู้เชี่ยวชาญด้านพฤติกรรมผู้บริโภค"
+    ],
+    "🎨 ครีเอเตอร์และสื่อ": [
+        "YouTuber/TikToker สายเล่าเรื่อง",
+        "ผู้กำกับภาพยนตร์และครีเอทีฟไดเรกเตอร์",
+        "นักเขียนบทความ SEO Specialist"
+    ]
+};
+</file>
+
+<file path="src/data/styles.js">
+
+</file>
+
+<file path="src/data/tasks.js">
+
+</file>
+
+<file path="src/data/templatesDB.js">
+// src/data/templatesDB.js
+export const templatesDB = [
+    {
+        id: "tpl-01",
+        title: "สรุปบทความ / หนังสือ แบบ Executive Summary",
+        category: "Business",
+        tags: ["Summary", "Business", "Reading"],
+        prompt: "ช่วยสรุปเนื้อหาสำคัญของ [ใส่ชื่อบทความ/หนังสือ] ให้เป็น Executive Summary สำหรับผู้บริหาร โดยแบ่งเป็น 3 ส่วน: 1. Key Takeaways 3 ข้อ 2. Actionable Insights ที่นำไปใช้ได้ทันที 3. Risk Warning ที่ต้องระวัง"
+    },
+    {
+        id: "tpl-02",
+        title: "เขียน Cold Email เสนอขายบริการ B2B",
+        category: "Marketing",
+        tags: ["Email", "Sales", "B2B"],
+        prompt: "จงเขียน Cold Email สั้นไม่เกิน 150 คำ ถึง [ตำแหน่งเป้าหมาย] เพื่อเสนอแก้ปัญหา [ระบุปัญหา] โดยเน้นการสร้างความเชื่อมั่น ไม่ยัดเยียดขาย และจบด้วยคำถามเปิด (Open-ended CTA) เพื่อขอคอล 15 นาที"
+    },
+    {
+        id: "tpl-03",
+        title: "Refactor โค้ดให้เป็น Clean Code & High Performance",
+        category: "Coding",
+        tags: ["Refactoring", "Clean Code", "Dev"],
+        prompt: "ช่วยรีแฟกเตอร์ (Refactor) โค้ดชุดนี้ให้เป็นไปตามหลัก Clean Code, ลด Code Duplication, เพิ่ม Type Hints/JSDoc และปรับปรุง Performance ให้ทำงานไวขึ้น พร้อมอธิบายจุดที่แก้ไขทีละข้อ"
+    },
+    {
+        id: "tpl-04",
+        title: "วางกลยุทธ์ Content Plan 30 วัน",
+        category: "Creator",
+        tags: ["Content Plan", "Social Media", "Strategy"],
+        prompt: "วางแผนคอนเทนต์สำหรับแพลตฟอร์ม [ระบุแพลตฟอร์ม] ระยะเวลา 30 วัน สำหรับธุรกิจ [ระบุประเภทธุรกิจ] โดยแบ่งสัดส่วนเป็น Content ให้ความรู้ 40%, Content สร้าง ความผูกพัน 30%, Content ขาย 20% และ Viral Content 10%"
+    }
+];
+</file>
+
+<file path="src/firebase/firebase.js">
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC82oWa8SfrYdidYrpNNAQ_bRdCHr3cYhE",
+  authDomain: "ai-prompt-system.firebaseapp.com",
+  projectId: "ai-prompt-system",
+  storageBucket: "ai-prompt-system.firebasestorage.app",
+  messagingSenderId: "429900246569",
+  appId: "1:429900246569:web:4b94b2f1eb5e3594dff638",
+  measurementId: "G-CCFMJPPVY4"
+};
+
+const app = initializeApp(firebaseConfig);
+
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+export default app;
+</file>
+
+<file path="src/layouts/mainLayout.js">
+import Navbar from "../components/navbar.js";
+
+export default function MainLayout(content){
+
+return `
+
+<div class="app-shell">
+
+  ${Navbar()}
+
+  <main class="flex-1 p-4 md:p-6 lg:p-8 overflow-auto min-h-[calc(100vh-64px)]">
+    ${content}
+  </main>
+
+</div>
+
+<script>
+// Top navigation and route activation
+(function(){
+  function updateActiveNav() {
+    const path = window.location.pathname || '/';
+    document.querySelectorAll('[data-path]').forEach(el => {
+      const isActive = el.getAttribute('data-path') === path;
+      el.classList.toggle('active', isActive);
+      if (isActive && el.scrollIntoView) {
+        el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+      }
+    });
+  }
+
+  // Delegate clicks on elements with data-path to client-side navigation
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest('[data-path]');
+    if (!target) return;
+    const path = target.getAttribute('data-path');
+    if (!path) return;
+    e.preventDefault();
+    try {
+      window.history.pushState({}, '', path);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      updateActiveNav();
+    } catch (err) {
+      console.warn('Navigation failed', err);
+    }
+  });
+
+  // Keyboard accessibility for nav items (Enter/Space)
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const active = document.activeElement;
+    if (!active) return;
+    if (active.hasAttribute('data-path')) {
+      active.click();
+      e.preventDefault();
+    }
+  });
+
+  window.addEventListener('popstate', updateActiveNav);
+  updateActiveNav();
+})();
+</script>
+
+`;
+
+}
+</file>
+
+<file path="src/pages/coding.js">
+// src/pages/coding.js
+import { codingLanguagesDB } from "../data/codingLanguages.js";
+
+export default function CodingPage() {
+    // Build options for codingLangSelect from codingLanguagesDB
+    const options = Object.entries(codingLanguagesDB).map(([k, v]) => `<option value="${k}">${v.name}</option>`).join("\n");
+
+    return `
+    <div class="max-w-6xl mx-auto p-4 sm:p-6">
+        <div class="page-card p-6 mb-6">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <div class="badge-cyber">Coding Studio</div>
+                    <h1 class="text-3xl font-black text-white mt-4">💻 Coding Assistant</h1>
+                    <p class="text-sm text-slate-400 mt-2">สร้าง prompt สำหรับเขียนโค้ดตามมาตรฐานความปลอดภัยระดับสูง</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge-cyber">Dev Flow</span>
+                    <span class="badge-cyber">SaaS Ready</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-6">
+            <div class="page-panel p-6 space-y-5">
+                <div class="section-panel space-y-4">
+                    <div class="section-tag">[LANGUAGE]</div>
+                    <label class="block text-sm font-semibold text-slate-300">ภาษาโปรแกรม</label>
+                    <select id="codingLangSelect" class="w-full p-3 border border-slate-700 rounded-3xl bg-[#081627] text-sm text-white">
+                        ${options}
+                    </select>
+                    <div id="codingLangDesc" class="text-sm text-slate-400"></div>
+                </div>
+
+                <div id="codingDynamicFields" class="space-y-3"></div>
+
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4 pt-2 border-t border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="includeTestsCheck" class="w-5 h-5 rounded-full bg-[#11203e] accent-[#5eead4] cursor-pointer">
+                        <label for="includeTestsCheck" class="text-sm text-slate-300">รวม Unit Tests</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="codingComplianceCheck" class="w-5 h-5 rounded-full bg-[#11203e] accent-[#5eead4] cursor-pointer">
+                        <label for="codingComplianceCheck" class="text-sm text-[#7dd3fc]">เปิดโหมดรักษาความปลอดภัยข้อมูล (PDPA/GDPR)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="terminal-box flex flex-col overflow-hidden">
+                <div class="terminal-header">
+                    <span class="terminal-label">CODE PROMPT</span>
+                    <span class="badge-cyber">AI Ready</span>
+                </div>
+                <div class="terminal-body" id="codingOutput"></div>
+                <div class="flex flex-wrap gap-3 p-5 border-t border-slate-800/40 bg-[#091827]">
+                    <button id="codingFavBtn" class="pill-btn pill-btn-secondary">⭐ เก็บเข้ารายการโปรด</button>
+                    <button id="codingCopyBtn" class="pill-btn pill-btn-primary">📋 คัดลอกคำสั่ง</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+}
+</file>
+
+<file path="src/pages/creator.js">
+// src/pages/creator.js
+export default function CreatorPage() {
+    return `
+    <div class="max-w-6xl mx-auto p-6">
+        <div class="mb-6 border-b border-slate-800 pb-4">
+            <h1 class="text-2xl font-black text-white mt-1">🎨 Creator Studio</h1>
+            <p class="text-xs text-slate-400 mt-0.5">เครื่องมือสร้างงานสร้างสรรค์และปรับแต่งคอนเทนต์</p>
+        </div>
+
+        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-lg">
+            <p class="text-sm text-slate-400">Placeholder page for Creator Studio. Add modules here.</p>
+        </div>
+    </div>
+    `;
+}
+</file>
+
+<file path="src/pages/dashboard.js">
+export function DashboardPage() { return `<div class="p-6"><h1 class="text-2xl font-bold text-white mb-2">📊 แผงควบคุม (Dashboard)</h1><p class="text-slate-400 text-sm">ยินดีต้อนรับเข้าสู่ AI Prompt Suite Infinite v2</p></div>`; }
+</file>
+
+<file path="src/pages/favorite.js">
+// src/pages/favorite.js
+export function FavoritePage() {
+    return `
+    <div class="max-w-6xl mx-auto p-4 sm:p-6">
+        <div class="page-card p-6 mb-6">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <div class="badge-cyber">Saved Items</div>
+                    <h1 class="text-3xl font-black text-white mt-4">⭐ รายการโปรด (Favorites)</h1>
+                    <p class="text-sm text-slate-400 mt-2">คลัง Prompt ที่คุณบันทึกไว้ใช้งานบ่อย ดึงข้อมูลสดจาก Firebase Cloud</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge-cyber">Live Sync</span>
+                    <span class="badge-cyber">Retry Ready</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="favoriteCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="col-span-full text-center py-12 text-slate-500 text-xs">⏳ กำลังโหลดรายการโปรด...</div>
+        </div>
+    </div>
+    `;
+}
+</file>
+
+<file path="src/pages/history.js">
+export function HistoryPage() { return "<h1>📜 History - Coming Soon</h1>"; }
+</file>
+
+<file path="src/pages/languages.js">
+// src/pages/languages.js
+export function LanguagesPage() {
+    return `
+    <div class="max-w-4xl mx-auto p-6">
+        <div class="mb-6 border-b border-slate-800 pb-4">
+            <h1 class="text-2xl font-black text-white mt-1">🧩 จัดการภาษาโปรแกรม (Developer Languages)</h1>
+            <p class="text-xs text-slate-400 mt-0.5">แก้ไขและทดสอบแม่แบบฟิลด์สำหรับแต่ละภาษา</p>
+        </div>
+
+        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-lg">
+            <div id="languageManager"></div>
+        </div>
+    </div>
+    `;
+}
+</file>
+
+<file path="src/pages/library.js">
+// src/pages/library.js
+export function LibraryPage() {
+    return `
+    <div class="max-w-6xl mx-auto p-4 sm:p-6">
+        <div class="page-card p-6 mb-6">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <div class="badge-cyber">Curated Collection</div>
+                    <h1 class="text-3xl font-black text-white mt-4">📚 Prompt Library</h1>
+                    <p class="text-sm text-slate-400 mt-2">คลังคำสั่งแม่แบบสำเร็จรูปที่ผ่านการทดสอบคุณภาพ พร้อมใช้งานทันที</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge-cyber">Template Hub</span>
+                    <span class="badge-cyber">Instant Copy</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6">
+            <div class="page-panel p-5">
+                <div class="grid grid-cols-1 lg:grid-cols-[1fr_0.45fr] gap-4">
+                    <input type="text" id="librarySearchInput" placeholder="🔍 ค้นหาแม่แบบ เช่น สรุปบทความ, Cold Email, Refactor..." class="w-full p-3 bg-[#081627] border border-slate-700 rounded-3xl text-sm text-white focus:outline-none focus:border-indigo-500" />
+                    <select id="libraryCategorySelect" class="w-full p-3 bg-[#081627] border border-slate-700 rounded-3xl text-sm font-semibold text-indigo-300">
+                        <option value="ALL">ทุกหมวดหมู่ (All Categories)</option>
+                        <option value="Business">💼 Business</option>
+                        <option value="Marketing">📢 Marketing</option>
+                        <option value="Coding">💻 Coding</option>
+                        <option value="Creator">🎨 Creator</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="libraryCardsGrid" class="card-grid"></div>
+        </div>
+    </div>
+    `;
+}
+</file>
+
+<file path="src/pages/login.js">
+
+</file>
+
+<file path="src/pages/notfound.js">
+export function NotFound() { return "<h1>❌ 404 - Page Not Found</h1>"; }
+</file>
+
+<file path="src/pages/prompt.js">
+// src/pages/prompt.js
+import { personasDB } from "../data/personas.js";
+import { aiModelsDB } from "../data/models.js";
+import { generatePrompt } from "../prompt/generator.js";
+
+export default function PromptPage() {
+    return `
+    <div class="max-w-6xl mx-auto p-4 sm:p-6">
+        <div class="page-card backglass p-6 mb-6">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <div class="badge-cyber">AI Prompt Suite Infinite</div>
+                    <h1 class="text-3xl sm:text-4xl font-black text-white mt-4">🧠 Prompt Builder</h1>
+                    <p class="text-sm text-slate-300 mt-2">Modern Cyber-SaaS experience with lower click friction for creators and engineers.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge-cyber">Glassmorphism</span>
+                    <span class="badge-cyber">Quick Presets</span>
+                    <span class="badge-cyber">Mobile Tab UX</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mobile-tab-switcher mb-4">
+            <button id="tabSettingsBtn" class="tab-pill tab-pill-active" type="button">ตั้งค่าคำสั่ง</button>
+            <button id="tabOutputBtn" class="tab-pill" type="button">ดูผลลัพธ์</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-[1.03fr_0.97fr] gap-6">
+            <div id="settingsTabPanel" class="mobile-tab-panel active">
+                <div class="page-panel backglass p-6 space-y-5">
+                    <div class="section-title"><span>[INPUT]</span> กำหนดรายละเอียด Prompt</div>
+
+                    <div class="section-panel space-y-4">
+                        <div class="section-tag">[TYPE]</div>
+                        <label class="block text-sm font-semibold text-slate-300">ประเภทผลลัพธ์</label>
+                        <select id="mediaTypeInput" class="w-full p-3 border border-white/10 rounded-3xl bg-white/5 text-sm text-white backdrop-blur-sm">
+                            <option value="text">📝 งานเขียน / คอนเทนต์ / แผนธุรกิจ</option>
+                            <option value="code">💻 เขียนโปรแกรม / สถาปัตยกรรมระบบ</option>
+                            <option value="data">📊 วิเคราะห์ข้อมูล / สถิติ / ธุรกิจ</option>
+                            <option value="image">🎨 ภาพนิ่ง / คอนเซปต์อาร์ต / กราฟิก</option>
+                        </select>
+                    </div>
+
+                    <div class="section-panel space-y-4">
+                        <div class="section-tag">[MODEL]</div>
+                        <label class="block text-sm font-semibold text-slate-300">เลือกค่าย AI ในคลิกเดียว</label>
+                        <div id="modelCardsContainer" class="grid grid-cols-2 gap-3"></div>
+                        <select id="aiModelSelect" class="hidden"></select>
+                    </div>
+
+                    <div id="personaSection" class="section-panel space-y-4">
+                        <div class="section-tag">[PERSONA]</div>
+                        <label class="block text-sm font-semibold text-slate-300">สวมบทบาท Expert</label>
+                        <select id="personaSelect" class="w-full p-3 border border-white/10 rounded-3xl bg-white/5 text-sm text-white backdrop-blur-sm"></select>
+                        <div id="personaChipsContainer" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="section-panel space-y-4">
+                        <div class="section-tag">[BRIEF]</div>
+                        <label class="block text-sm font-semibold text-slate-300">ภารกิจ (Task / Brief)</label>
+                        <textarea id="taskInput" rows="4" placeholder="ระบุรายละเอียดงานที่ต้องการให้ AI ทำ..." class="w-full p-3 border border-white/10 rounded-3xl bg-white/5 text-sm text-white backdrop-blur-sm"></textarea>
+                        <div id="quickTaskChipsContainer" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="section-panel space-y-3">
+                            <div class="section-tag">[AUDIENCE]</div>
+                            <label class="block text-sm font-semibold text-slate-300">กลุ่มเป้าหมาย</label>
+                            <input type="text" id="audienceInput" value="นักลงทุนอสังหาฯ และผู้บริหารระดับสูง (C-Level)" class="w-full p-3 border border-white/10 rounded-3xl bg-white/5 text-sm text-white backdrop-blur-sm" />
+                        </div>
+                        <div class="section-panel space-y-3" id="languageSection" style="display:none;">
+                            <div class="section-tag">[LANGUAGE]</div>
+                            <label class="block text-sm font-semibold text-slate-300">ภาษาโปรแกรม (Dev Language)</label>
+                            <select id="codingLanguageSelect" class="w-full p-3 border border-white/10 rounded-3xl bg-white/5 text-sm text-white backdrop-blur-sm"></select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="section-panel space-y-3">
+                            <div class="section-tag">[STYLE]</div>
+                            <label class="block text-sm font-semibold text-slate-300">Tone of Voice</label>
+                            <input type="text" id="styleInput" value="เป็นทางการ น่าเชื่อถือ อ้างอิงข้อมูลสถิติ และนำเสนอเป็น Bullet points" class="w-full p-3 border border-white/10 rounded-3xl bg-white/5 text-sm text-white backdrop-blur-sm" />
+                        </div>
+
+                        <div class="section-panel space-y-3">
+                            <div class="section-tag">[OPTIONS]</div>
+                            <div class="flex flex-col gap-3">
+                                <label class="flex items-center gap-3 p-3 rounded-3xl border border-white/10 bg-white/5">
+                                    <input type="checkbox" id="includeTestsCheck" class="w-5 h-5 rounded-full bg-[#11203e] accent-[#5eead4] cursor-pointer" />
+                                    <span class="text-sm text-slate-300">รวม Unit Tests</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 rounded-3xl border border-white/10 bg-white/5">
+                                    <input type="checkbox" id="complianceCheck" class="w-5 h-5 rounded-full bg-[#11203e] accent-[#5eead4] cursor-pointer" />
+                                    <span class="text-sm text-[#7dd3fc]">🛡️ เปิดโหมดรักษาความปลอดภัยข้อมูล (PDPA/GDPR)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="outputTabPanel" class="mobile-tab-panel active">
+                <div class="terminal-box backglass flex flex-col overflow-hidden">
+                    <div class="terminal-header">
+                        <span class="terminal-label">PROMPT OUTPUT</span>
+                        <div class="terminal-meta flex flex-wrap gap-2 items-center">
+                            <span id="tokenCount" class="terminal-stat">Token ~0</span>
+                            <span id="charCount" class="terminal-stat">Chars 0</span>
+                        </div>
+                    </div>
+                    <div id="outputPrompt" class="terminal-body"></div>
+                    <div class="flex flex-col gap-3 p-5 border-t border-white/10 bg-white/5">
+                        <div class="flex flex-wrap justify-between gap-3">
+                            <button id="fullscreenBtn" class="pill-btn pill-btn-secondary">⛶ ขยายเต็มจอ</button>
+                            <div class="flex flex-wrap gap-3">
+                                <button id="favBtn" class="pill-btn pill-btn-secondary">⭐ เก็บเข้ารายการโปรด</button>
+                                <button id="copyBtn" class="pill-btn pill-btn-primary">📋 คัดลอกคำสั่ง</button>
+                            </div>
+                        </div>
+                        <div id="toastWrapper" class="toast-wrapper"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+}
+</file>
+
+<file path="src/pages/settings.js">
+export function SettingsPage() { return "<h1>⚙️ Settings - Coming Soon</h1>"; }
+</file>
+
+<file path="src/prompt/builder.js">
+// src/prompt/builder.js
+import { personasDB } from "../data/personas.js";
+import { aiModelsDB } from "../data/models.js";
+import { codingLanguagesDB } from "../data/codingLanguages.js";
+import { generatePrompt } from "./generator.js";
+import { saveToHistory, saveToFavorites } from "../services/firestore.js";
+
+export function initPromptBuilder() {
+    const mediaTypeInput = document.getElementById("mediaTypeInput");
+    const personaSelect = document.getElementById("personaSelect");
+    const aiModelSelect = document.getElementById("aiModelSelect");
+    const modelCardsContainer = document.getElementById("modelCardsContainer");
+    const codingLanguageSelect = document.getElementById("codingLanguageSelect");
+    const includeTestsCheck = document.getElementById("includeTestsCheck");
+    const outputPrompt = document.getElementById("outputPrompt");
+    const copyBtn = document.getElementById("copyBtn");
+    const favBtn = document.getElementById("favBtn");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    const tokenCount = document.getElementById("tokenCount");
+    const charCount = document.getElementById("charCount");
+    const toastWrapper = document.getElementById("toastWrapper");
+    const personaChipsContainer = document.getElementById("personaChipsContainer");
+    const quickTaskChipsContainer = document.getElementById("quickTaskChipsContainer");
+    const tabSettingsBtn = document.getElementById("tabSettingsBtn");
+    const tabOutputBtn = document.getElementById("tabOutputBtn");
+    const settingsTabPanel = document.getElementById("settingsTabPanel");
+    const outputTabPanel = document.getElementById("outputTabPanel");
+
+    if (!mediaTypeInput) return;
+
+    // 1. โหลดข้อมูล Persona ลงใน Dropdown
+    function renderPersonas() {
+        personaSelect.innerHTML = "";
+        for (const [group, items] of Object.entries(personasDB)) {
+            const optgroup = document.createElement("optgroup");
+            optgroup.label = group;
+            items.forEach(item => {
+                const opt = document.createElement("option");
+                opt.value = opt.text = item;
+                optgroup.appendChild(opt);
+            });
+            personaSelect.appendChild(optgroup);
+        }
+    }
+
+    // 1b. โหลดรายการภาษาโปรแกรม (สำหรับ mediaType === 'code')
+    function renderCodingLanguages() {
+        if (!codingLanguageSelect) return;
+        codingLanguageSelect.innerHTML = "";
+        Object.entries(codingLanguagesDB).forEach(([key, meta]) => {
+            const opt = document.createElement("option");
+            opt.value = key;
+            opt.text = meta.name;
+            codingLanguageSelect.appendChild(opt);
+        });
+    }
+
+    const personaPresets = [
+        "Full-Stack AI Developer",
+        "นักเขียนคำโฆษณา (Copywriter)",
+        "นักกลยุทธ์การตลาดดิจิทัล (CMO)",
+        "UX/UI Designer",
+        "ที่ปรึกษาธุรกิจระดับโลก (McKinsey Style)"
+    ];
+
+    const quickTaskPresets = [
+        "เขียนแคมเปญโฆษณา 30 วันสำหรับเทคสตาร์ทอัพ",
+        "สร้างสรุปรายงานกลยุทธ์การเติบโตสำหรับผลิตภัณฑ์ SaaS",
+        "แต่งโพสต์ LinkedIn ให้กลุ่มนักพัฒนาซอฟต์แวร์",
+        "ร่างสคริปต์วีดีโอสั้นสำหรับโปรโมตแคมเปญ",
+        "ออกแบบแผนงานเปิดตัวคุณสมบัติใหม่"
+    ];
+
+    function renderPersonaPresets() {
+        if (!personaChipsContainer) return;
+        personaChipsContainer.innerHTML = personaPresets.map(role => `
+            <button type="button" data-preset-persona="${role}" class="preset-chip">${role}</button>
+        `).join("");
+    }
+
+    function renderQuickTaskPresets() {
+        if (!quickTaskChipsContainer) return;
+        quickTaskChipsContainer.innerHTML = quickTaskPresets.map(task => `
+            <button type="button" data-preset-task="${task}" class="preset-chip">${task}</button>
+        `).join("");
+    }
+
+    function showToast(message) {
+        if (!toastWrapper) return;
+        const toast = document.createElement("div");
+        toast.className = "toast-toast";
+        toast.textContent = message;
+        toastWrapper.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add("visible"));
+        window.setTimeout(() => {
+            toast.classList.remove("visible");
+            toast.addEventListener("transitionend", () => toast.remove(), { once: true });
+        }, 2000);
+    }
+
+    function estimateTokens(text) {
+        const trimmed = String(text || "").trim();
+        if (!trimmed) return 0;
+        const wordCount = trimmed.split(/\s+/).length;
+        return Math.max(1, Math.round(wordCount * 1.35));
+    }
+
+    function updateCounters() {
+        if (!tokenCount || !charCount || !outputPrompt) return;
+        const text = outputPrompt.innerText || "";
+        tokenCount.innerText = `Token ~${estimateTokens(text)}`;
+        charCount.innerText = `Chars ${text.length}`;
+    }
+
+    function setActiveModelChip() {
+        if (!modelCardsContainer) return;
+        modelCardsContainer.querySelectorAll("button[data-model-id]").forEach(btn => {
+            btn.classList.toggle("selected", btn.dataset.modelId === aiModelSelect.value);
+        });
+    }
+
+    function renderModelCards() {
+        if (!modelCardsContainer) return;
+        const type = mediaTypeInput.value;
+        const availableModels = aiModelsDB[type] || aiModelsDB.text;
+        aiModelSelect.innerHTML = "";
+        availableModels.forEach(model => {
+            const opt = document.createElement("option");
+            opt.value = model.id;
+            opt.text = model.name;
+            aiModelSelect.appendChild(opt);
+        });
+
+        if (!aiModelSelect.value && availableModels.length > 0) {
+            aiModelSelect.value = availableModels[0].id;
+        }
+
+        modelCardsContainer.innerHTML = availableModels.map(model => `
+            <button type="button" data-model-id="${model.id}" class="model-chip${model.id === aiModelSelect.value ? " selected" : ""}">
+                <span>${model.name}</span>
+                <small>${model.provider}</small>
+            </button>
+        `).join("");
+    }
+
+    function toggleFullscreen() {
+        const terminalBox = document.querySelector(".terminal-box");
+        if (!terminalBox || !fullscreenBtn) return;
+        const expanded = terminalBox.classList.toggle("terminal-fullscreen");
+        fullscreenBtn.innerText = expanded ? "✕ ปิดเต็มจอ" : "⛶ ขยายเต็มจอ";
+    }
+
+    function switchMobileTab(tab) {
+        if (!settingsTabPanel || !outputTabPanel || !tabSettingsBtn || !tabOutputBtn) return;
+        settingsTabPanel.classList.toggle("active", tab === "settings");
+        outputTabPanel.classList.toggle("active", tab === "output");
+        tabSettingsBtn.classList.toggle("tab-pill-active", tab === "settings");
+        tabOutputBtn.classList.toggle("tab-pill-active", tab === "output");
+    }
+
+    // 2. สลับ AI Models และซ่อน/แสดงช่องกรอกข้อมูลตามประเภทที่เลือก
+    function handleMediaTypeChange() {
+        const type = mediaTypeInput.value;
+        const isImage = type === "image";
+        const isCode = type === "code";
+
+        // แสดง/ซ่อน เมนูตามความเหมาะสมของสายงาน
+        document.getElementById("personaSection").style.display = isImage ? "none" : "block";
+        document.getElementById("audienceSection").style.display = isImage ? "none" : "block";
+        document.getElementById("ratioSection").style.display = isImage ? "block" : "none";
+
+        // แสดง/ซ่อน ส่วนของภาษาโปรแกรมเมื่อเลือกประเภท "code"
+        const langSection = document.getElementById("languageSection");
+        if (langSection) langSection.style.display = isCode ? "block" : "none";
+
+        renderModelCards();
+
+        // ถ้าเป็นโหมดเขียนโค้ด ให้โหลดรายการภาษา
+        if (isCode && codingLanguageSelect) {
+            renderCodingLanguages();
+            if (!codingLanguageSelect.__hasChangeListener) {
+                codingLanguageSelect.addEventListener("change", update);
+                codingLanguageSelect.__hasChangeListener = true;
+            }
+        }
+
+        update();
+    }
+
+    // 3. ฟังก์ชันประมวลผลข้อความ Prompt ล่าสุด
+    function update() {
+        const config = {
+            mediaType: mediaTypeInput.value,
+            modelId: aiModelSelect.value,
+            language: codingLanguageSelect?.value || "",
+            persona: personaSelect.value,
+            task: document.getElementById("taskInput").value,
+            audience: document.getElementById("audienceInput")?.value || "",
+            style: document.getElementById("styleInput")?.value || "",
+            ratio: document.getElementById("ratioInput")?.value || "16:9",
+            isCompliance: document.getElementById("complianceCheck")?.checked || false,
+            includeTests: includeTestsCheck?.checked || false
+        };
+
+        const resultText = generatePrompt(config);
+        if (outputPrompt) {
+            outputPrompt.textContent = resultText;
+            updateCounters();
+        }
+    }
+
+    function getCurrentPromptData() {
+        return {
+            mediaType: mediaTypeInput.value,
+            modelId: aiModelSelect.value,
+            language: codingLanguageSelect?.value || "",
+            persona: personaSelect.value,
+            task: document.getElementById("taskInput").value,
+            includeTests: includeTestsCheck?.checked || false,
+            content: outputPrompt.innerText
+        };
+    }
+
+    // 4. บันทึกประวัติ + คัดลอก
+    if (copyBtn) {
+        copyBtn.addEventListener("click", () => {
+            const text = outputPrompt?.textContent || "";
+            navigator.clipboard.writeText(text).then(() => {
+                copyBtn.innerText = "✅ คัดลอกแล้ว!";
+                saveToHistory(getCurrentPromptData());
+                showToast("คัดลอกเรียบร้อยแล้ว!");
+                setTimeout(() => { copyBtn.innerText = "📋 คัดลอกคำสั่ง"; }, 2000);
+            });
+        });
+    }
+
+    // 5. บันทึกรายการโปรด
+    if (favBtn) {
+        favBtn.addEventListener("click", async () => {
+            favBtn.innerText = "⏳ บันทึก...";
+            favBtn.disabled = true;
+            try {
+                await saveToFavorites(getCurrentPromptData());
+                favBtn.innerText = "⭐ บันทึกสำเร็จ!";
+                showToast("บันทึกรายการโปรดแล้ว");
+            } catch (e) {
+                favBtn.innerText = "❌ ผิดพลาด";
+                showToast("บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง");
+            } finally {
+                setTimeout(() => { favBtn.innerText = "⭐ เก็บเข้ารายการโปรด"; favBtn.disabled = false; }, 2000);
+            }
+        });
+    }
+
+    if (modelCardsContainer) {
+        modelCardsContainer.addEventListener("click", (event) => {
+            const button = event.target.closest("button[data-model-id]");
+            if (!button) return;
+            aiModelSelect.value = button.dataset.modelId || aiModelSelect.value;
+            setActiveModelChip();
+            update();
+        });
+    }
+
+    if (personaChipsContainer) {
+        personaChipsContainer.addEventListener("click", (event) => {
+            const button = event.target.closest("button[data-preset-persona]");
+            if (!button) return;
+            const persona = button.dataset.presetPersona;
+            const option = Array.from(personaSelect.options).find(opt => opt.value === persona);
+            if (option) {
+                personaSelect.value = persona;
+                update();
+            }
+        });
+    }
+
+    if (quickTaskChipsContainer) {
+        quickTaskChipsContainer.addEventListener("click", (event) => {
+            const button = event.target.closest("button[data-preset-task]");
+            if (!button) return;
+            const task = button.dataset.presetTask;
+            const taskInput = document.getElementById("taskInput");
+            if (taskInput) {
+                taskInput.value = task;
+                update();
+            }
+        });
+    }
+
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener("click", toggleFullscreen);
+        window.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                const terminalBox = document.querySelector(".terminal-box");
+                if (terminalBox?.classList.contains("terminal-fullscreen")) {
+                    toggleFullscreen();
+                }
+            }
+        });
+    }
+
+    if (tabSettingsBtn && tabOutputBtn) {
+        tabSettingsBtn.addEventListener("click", () => switchMobileTab("settings"));
+        tabOutputBtn.addEventListener("click", () => switchMobileTab("output"));
+    }
+
+    // ดักจับ Event เมื่อมีการเปลี่ยนแปลงข้อมูล
+    mediaTypeInput.addEventListener("change", handleMediaTypeChange);
+    personaSelect.addEventListener("change", update);
+    aiModelSelect.addEventListener("change", update);
+    document.getElementById("taskInput").addEventListener("input", update);
+    document.getElementById("audienceInput")?.addEventListener("input", update);
+    document.getElementById("styleInput")?.addEventListener("input", update);
+    document.getElementById("ratioInput")?.addEventListener("change", update);
+    document.getElementById("complianceCheck")?.addEventListener("change", update);
+    includeTestsCheck?.addEventListener("change", update);
+
+    renderPersonas();
+    renderPersonaPresets();
+    renderQuickTaskPresets();
+    renderModelCards();
+    handleMediaTypeChange();
+
+    // ถ้ามี template ถูกเลือกจาก Library หรือ Favorite ให้โหลดข้อมูลเข้าไปในฟอร์ม
+    try {
+        const rawTpl = window.sessionStorage.getItem('selectedTemplate');
+        const rawFav = window.sessionStorage.getItem('selectedFavorite');
+        const taskEl = document.getElementById('taskInput');
+
+        if (rawTpl) {
+            const tpl = JSON.parse(rawTpl);
+            if (taskEl && tpl.prompt) taskEl.value = tpl.prompt;
+            // Optionally fill other fields if provided
+            if (tpl.persona) personaSelect.value = tpl.persona;
+            if (tpl.language && codingLanguageSelect) codingLanguageSelect.value = tpl.language;
+            window.sessionStorage.removeItem('selectedTemplate');
+            update();
+        }
+
+        if (rawFav) {
+            const fav = JSON.parse(rawFav);
+            if (taskEl && fav.content) taskEl.value = fav.content;
+            if (fav.modelId) {
+                // try to set modelId if exists in select
+                const opt = Array.from(aiModelSelect.options).find(o => o.value === fav.modelId);
+                if (opt) aiModelSelect.value = fav.modelId;
+            }
+            if (fav.language && codingLanguageSelect) {
+                const optLang = Array.from(codingLanguageSelect.options).find(o => o.value === fav.language);
+                if (optLang) codingLanguageSelect.value = fav.language;
+            }
+            window.sessionStorage.removeItem('selectedFavorite');
+            update();
+        }
+    } catch (err) {
+        console.error('Failed to apply selected template/favorite', err);
+    }
+}
+</file>
+
+<file path="src/prompt/codingBuilder.js">
+// src/prompt/codingBuilder.js
+import { codingLanguagesDB } from "../data/codingLanguages.js";
+import { generateCodingPrompt } from "./codingEngine.js";
+import { saveToHistory, saveToFavorites } from "../services/firestore.js";
+
+export function initCodingBuilder() {
+    // Support both ids: codingLangSelect (user-provided) or codingLanguageSelect (existing in Prompt page)
+    const langSelect = document.getElementById("codingLangSelect") || document.getElementById("codingLanguageSelect");
+    const dynamicFields = document.getElementById("codingDynamicFields");
+    const langDesc = document.getElementById("codingLangDesc");
+    const codingOutput = document.getElementById("codingOutput");
+    const copyBtn = document.getElementById("codingCopyBtn");
+    const favBtn = document.getElementById("codingFavBtn");
+    const includeTestsCheck = document.getElementById("includeTestsCheck");
+    const complianceCheck = document.getElementById("codingComplianceCheck");
+
+    if (!langSelect) return;
+
+    function renderDynamicFields() {
+        const langKey = langSelect.value;
+        const langData = codingLanguagesDB[langKey];
+        
+        if (langDesc) langDesc.innerText = langData.description || "";
+        if (!dynamicFields) return;
+
+        dynamicFields.innerHTML = "";
+
+        (langData.fields || []).forEach(field => {
+            const wrapper = document.createElement("div");
+            const label = document.createElement("label");
+            label.className = "block text-[10px] font-bold text-cyan-400 uppercase mb-1";
+            label.innerText = `⚙️ ${field.replace(/([A-Z])/g, ' $1').toUpperCase()}`;
+            
+            const input = document.createElement("input");
+            input.type = "text";
+            input.dataset.field = field;
+            input.className = "w-full p-2 border border-slate-700 rounded-xl text-xs bg-slate-950 text-white coding-input";
+            input.placeholder = `ระบุข้อกำหนด ${field}...`;
+            
+            wrapper.appendChild(label);
+            wrapper.appendChild(input);
+            dynamicFields.appendChild(wrapper);
+            
+            input.addEventListener("input", updatePrompt);
+        });
+
+        updatePrompt();
+    }
+
+    function updatePrompt() {
+        const langKey = langSelect.value;
+        const inputs = {
+            includeTests: includeTestsCheck?.checked || false,
+            isCompliance: complianceCheck?.checked || false
+        };
+
+        document.querySelectorAll(".coding-input").forEach(input => {
+            inputs[input.dataset.field] = input.value;
+        });
+
+        const promptText = generateCodingPrompt(langKey, inputs);
+        if (codingOutput) codingOutput.innerText = promptText;
+    }
+
+    if (copyBtn) {
+        copyBtn.addEventListener("click", () => {
+            const text = codingOutput ? codingOutput.innerText : "";
+            navigator.clipboard.writeText(text).then(() => {
+                copyBtn.innerText = "✅ คัดลอกแล้ว!";
+                saveToHistory({
+                    type: "coding",
+                    language: langSelect.value,
+                    content: text
+                });
+                setTimeout(() => { copyBtn.innerText = "📋 คัดลอกคำสั่ง"; }, 2000);
+            });
+        });
+    }
+
+    if (favBtn) {
+        favBtn.addEventListener("click", async () => {
+            favBtn.innerText = "⏳ บันทึก...";
+            try {
+                await saveToFavorites({
+                    type: "coding",
+                    language: langSelect.value,
+                    content: codingOutput ? codingOutput.innerText : ""
+                });
+                favBtn.innerText = "⭐ บันทึกสำเร็จ!";
+            } catch (e) {
+                favBtn.innerText = "❌ ผิดพลาด";
+            }
+            setTimeout(() => { favBtn.innerText = "⭐ บันทึกโปรด"; }, 2000);
+        });
+    }
+
+    langSelect.addEventListener("change", renderDynamicFields);
+    includeTestsCheck?.addEventListener("change", updatePrompt);
+    complianceCheck?.addEventListener("change", updatePrompt);
+
+    renderDynamicFields();
+}
+</file>
+
+<file path="src/prompt/codingEngine.js">
+// src/prompt/codingEngine.js
+
+export function generateCodingPrompt(langKey, inputs) {
+    const { codeStyle, includeTests, isCompliance } = inputs;
+    const complianceRule = isCompliance ? "\n- Security Mandate: Ensure strict protection against injection, data leaks, and insecure dependencies." : "";
+    const testingRule = includeTests ? "\n- Unit Tests Requirement: Include comprehensive unit tests covering edge cases." : "";
+
+    switch (langKey) {
+        case "html":
+            return `### SENIOR HTML5 ARCHITECT PROMPT ###
+Role: Principal Front-End Developer & Accessibility (A11y) Expert.
+Objective: Build a fully compliant, production-ready HTML5 structure.
+
+Requirements:
+- Target Feature: ${inputs.featureRequirement || "Responsive Component"}
+- Styling Approach: ${inputs.frameworkOrCss || "Tailwind CSS"}
+- Accessibility Level: ${inputs.accessibilityLevel || "WCAG 2.1 AA Compliant"}
+
+Output Instructions:
+1. Use semantic HTML5 elements (<header>, <nav>, <main>, <section>, <article>, <footer>).
+2. Ensure full keyboard navigation and correct ARIA roles/attributes.
+3. Clean, well-indented code block without placeholder omissions.${complianceRule}${testingRule}`;
+
+        case "css":
+            return `### SENIOR CSS & UI ARCHITECT PROMPT ###
+Role: Staff CSS & Motion Design Specialist.
+Objective: Write modern, responsive, and performant CSS/Tailwind code.
+
+Requirements:
+- Layout Technique: ${inputs.layoutStyle || "Flexbox & CSS Grid"}
+- Target Component: ${inputs.targetComponents || "Responsive Dashboard Cards"}
+- Animation & Effects: ${inputs.animationDetails || "Smooth transitions & micro-interactions"}
+
+Output Instructions:
+1. Mobile-first responsive design principles.
+2. Use CSS Variables or clean utility classes.
+3. High performance rendering (minimize layout thrashing).${complianceRule}`;
+
+        case "javascript":
+            return `### SENIOR JAVASCRIPT ENGINEER PROMPT ###
+Role: Principal Modern JavaScript (ES6+) Engineer.
+Objective: Develop modular, scalable, and maintainable JavaScript code.
+
+Requirements:
+- Feature Task: ${inputs.featureRequirement || "Async Data Fetching & DOM Rendering"}
+- Async Strategy: ${inputs.asyncHandling || "Async/Await with Fetch API"}
+- Error Handling: ${inputs.errorManagement || "Try/Catch with User Notifications"}
+
+Output Instructions:
+1. Write pure ES6+ (Arrow functions, Destructuring, Modules).
+2. Clean DOM manipulation with zero memory leaks.
+3. Include inline documentation (JSDoc format).${complianceRule}${testingRule}`;
+
+        case "python":
+            return `### SENIOR PYTHON DEVELOPER PROMPT ###
+Role: Lead Python Architect & Backend Engineer.
+Objective: Write PEP 8 compliant, Pythonic, and highly readable code.
+
+Requirements:
+- Task Goal: ${inputs.taskGoal || "REST API Endpoint or Data Processing"}
+- Architecture/Pattern: ${inputs.architecturePattern || "Modular / Clean Architecture"}
+- Python Standard: ${inputs.pythonVersion || "Python 3.12+"}
+
+Output Instructions:
+1. Enforce strict Type Hints (typing module / Pydantic).
+2. Comprehensive exception handling and logging.
+3. Optimized algorithms with efficient memory complexity.${complianceRule}${testingRule}`;
+
+        case "php":
+            return `### SENIOR PHP 8+ ARCHITECT PROMPT ###
+Role: Enterprise PHP Backend Specialist.
+Objective: Develop secure, object-oriented PHP 8.x code.
+
+Requirements:
+- Feature Requirement: ${inputs.featureRequirement || "Secure Authentication & CRUD"}
+- Security Protocol: ${inputs.securityRules || "PDO Prepared Statements, CSRF Protection, XSS Sanitization"}
+- DB Handling: ${inputs.databaseHandling || "PDO Connection Class"}
+
+Output Instructions:
+1. Utilize modern PHP 8+ features (Typed properties, Match expressions, Named arguments).
+2. Strict adherence to PSR-12 coding standards.
+3. Zero vulnerability guarantee against SQL Injection and XSS.${complianceRule}${testingRule}`;
+
+        case "flutter":
+            return `### SENIOR FLUTTER / DART ENGINEER PROMPT ###
+Role: Principal Mobile App Architect (Flutter & Dart).
+Objective: Build a high-performance, cross-platform Flutter component.
+
+Requirements:
+- Widget Task: ${inputs.widgetRequirement || "Custom Animated ListView Component"}
+- State Management: ${inputs.stateManagement || "Riverpod / Bloc / Provider"}
+- Layer Architecture: ${inputs.architectureLayer || "Clean Architecture (Data, Domain, Presentation)"}
+
+Output Instructions:
+1. Separate UI components into reusable, const-optimized Widgets.
+2. Smooth 60fps performance with efficient state updates.
+3. Responsive UI supporting both iOS and Android.${complianceRule}${testingRule}`;
+
+        case "react":
+            return `### SENIOR REACT ARCHITECT PROMPT ###
+Role: Lead React & Front-End Specialist.
+Objective: Write modern, functional React components with optimal rendering.
+
+Requirements:
+- Component Task: ${inputs.componentTask || "Interactive Data Grid Component"}
+- State Strategy: ${inputs.stateStrategy || "React Context / Zustand / Redux Toolkit"}
+- Styling Approach: ${inputs.stylingMethod || "Tailwind CSS"}
+
+Output Instructions:
+1. Write 100% Functional Components with modern Hooks.
+2. Optimize re-renders using useMemo, useCallback, and React.memo where appropriate.
+3. Proper TypeScript interface/props definitions or prop-types validation.${complianceRule}${testingRule}`;
+
+        default:
+            return `Act as a Senior Software Engineer. Write clean, production-ready code for language: ${langKey}.`;
+    }
+}
+</file>
+
+<file path="src/prompt/creatorBuilder.js">
+// src/prompt/creatorBuilder.js
+export function initCreatorBuilder() {
+    // Placeholder initializer for Creator Studio.
+    const el = document.getElementById("creatorBuilder");
+    if (!el) return;
+    // Future: attach event listeners and dynamic UI for creator tools
+}
+</file>
+
+<file path="src/prompt/exporter.js">
+
+</file>
+
+<file path="src/prompt/favoriteBuilder.js">
+// src/prompt/favoriteBuilder.js
+import { db } from "../firebase/firebase.js";
+import { collection, getDocs, deleteDoc, doc, query, orderBy } from "firebase/firestore";
+import { Spinner, SkeletonCard } from "../components/ui.js";
+
+export async function initFavoriteBuilder() {
+    const grid = document.getElementById("favoriteCardsGrid");
+    if (!grid) return;
+
+    // create or reuse loading indicator and status
+    let loadingEl = document.getElementById('favoriteLoading');
+    let statusEl = document.getElementById('favoriteStatus');
+
+    if (!statusEl) {
+        statusEl = document.createElement('div');
+        statusEl.id = 'favoriteStatus';
+        statusEl.className = 'col-span-full text-center py-2 text-slate-400 text-xs';
+        grid.parentNode.insertBefore(statusEl, grid);
+    }
+
+    if (!loadingEl) {
+        loadingEl = document.createElement('div');
+        loadingEl.id = 'favoriteLoading';
+        loadingEl.className = 'col-span-full text-center py-6 text-slate-400 text-xs';
+        loadingEl.innerHTML = Spinner(20, 'กำลังโหลดรายการโปรด...');
+        loadingEl.style.display = 'none';
+        grid.parentNode.insertBefore(loadingEl, grid);
+    }
+
+    function renderSkeletons(count = 6) {
+        grid.innerHTML = Array.from({length: count}).map(() => SkeletonCard()).join('\n');
+    }
+
+    function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
+
+    async function loadWithRetry(maxAttempts = 4, baseDelay = 500) {
+        // show skeletons and loading
+        renderSkeletons(6);
+        loadingEl.style.display = 'block';
+        statusEl.innerText = '';
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                if (attempt > 1) statusEl.innerText = `❗ พยายามเชื่อมต่ออีกครั้ง (${attempt}/${maxAttempts})...`;
+
+                const q = query(collection(db, "favorites"), orderBy("savedAt", "desc"));
+                const snapshot = await getDocs(q);
+
+                loadingEl.style.display = 'none';
+                statusEl.innerText = '';
+
+                if (snapshot.empty) {
+                    grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 text-xs">ยังไม่มีรายการโปรด กด ⭐ หน้าสร้าง Prompt เพื่อบันทึกไว้ได้เลย</div>`;
+                    return;
+                }
+
+                const list = snapshot.docs.map(s => ({ id: s.id, ...s.data() }));
+
+                grid.innerHTML = list.map(item => `
+                    <div id="fav-card-${item.id}" class="bg-slate-900 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="bg-amber-500/10 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-500/20">${item.modelId || item.platform || item.language || 'Saved Prompt'}</span>
+                                <div class="flex gap-2 items-center">
+                                    <button data-use-id="${item.id}" class="fav-use-btn text-xs bg-emerald-600 text-white px-2 py-1 rounded">➡ ใช้</button>
+                                    <button data-delete-id="${item.id}" class="fav-delete-btn text-xs text-slate-500 hover:text-rose-400">🗑️ ลบ</button>
+                                </div>
+                            </div>
+                            <pre class="text-xs text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-900 font-mono mb-3 line-clamp-4 whitespace-pre-wrap">${(item.content || '').replace(/</g, '&lt;')}</pre>
+                        </div>
+                        <div class="flex justify-end pt-2 border-t border-slate-800/60">
+                            <button data-copy="${encodeURIComponent(item.content || '')}" class="fav-copy-btn bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold py-1.5 px-3 rounded-xl transition">📋 คัดลอกคำสั่ง</button>
+                        </div>
+                    </div>
+                `).join('\n');
+
+                // attach listeners
+                document.querySelectorAll('.fav-copy-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const text = decodeURIComponent(e.currentTarget.dataset.copy || '');
+                        navigator.clipboard.writeText(text).then(() => {
+                            const old = e.currentTarget.innerText;
+                            e.currentTarget.innerText = '✅ คัดลอกแล้ว';
+                            setTimeout(() => e.currentTarget.innerText = old, 2000);
+                        }).catch(() => {
+                            alert('คัดลอกไม่สำเร็จ');
+                        });
+                    });
+                });
+
+                document.querySelectorAll('.fav-use-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.currentTarget.dataset.useId;
+                        const item = list.find(i => i.id === id);
+                        if (!item) return;
+                        // store and navigate to prompt page
+                        try {
+                            window.sessionStorage.setItem('selectedFavorite', JSON.stringify(item));
+                        } catch (err) { console.warn('sessionStorage unavailable', err); }
+                        window.history.pushState({}, '', '/prompt');
+                        window.dispatchEvent(new PopStateEvent('popstate'));
+                    });
+                });
+
+                document.querySelectorAll('.fav-delete-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const id = e.currentTarget.dataset.deleteId;
+                        if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้ออกจากรายการโปรด?')) return;
+                        const btnEl = e.currentTarget;
+                        btnEl.disabled = true;
+                        try {
+                            await deleteDoc(doc(db, 'favorites', id));
+                            document.getElementById(`fav-card-${id}`)?.remove();
+                        } catch (err) {
+                            alert('ลบไม่สำเร็จ');
+                            console.error(err);
+                            btnEl.disabled = false;
+                        }
+                    });
+                });
+
+                return; // success
+
+            } catch (err) {
+                console.error('Failed loading favorites (attempt', attempt, '):', err);
+                const delay = baseDelay * Math.pow(2, attempt - 1);
+                if (attempt === maxAttempts) {
+                    loadingEl.style.display = 'none';
+                                    statusEl.innerHTML = `<div>เกิดข้อผิดพลาดในการโหลดข้อมูล: ${err.message || 'Unknown'}</div><div class="mt-2"><button id="favoriteRetryBtn" class="px-3 py-1 text-xs rounded bg-indigo-600">ลองอีกครั้ง</button></div>`;
+                                    grid.innerHTML = `<div class="col-span-full text-center py-12 text-rose-400 text-xs">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>`;
+                                    // attach manual retry
+                                    setTimeout(() => {
+                                        const retryBtn = document.getElementById('favoriteRetryBtn');
+                                        if (retryBtn) {
+                                            retryBtn.addEventListener('click', () => {
+                                                loadWithRetry(maxAttempts, baseDelay);
+                                            });
+                                        }
+                                    }, 50);
+                                    return;
+                                }
+                statusEl.innerText = `❗ การเชื่อมต่อล้มเหลว (${attempt}/${maxAttempts}). จะลองอีกครั้งใน ${Math.round(delay/1000)} วินาที...`;
+                const jitter = Math.floor(Math.random() * 200);
+                await sleep(delay + jitter);
+                // continue
+            }
+        }
+    }
+
+    // start
+    loadWithRetry();
+}
+</file>
+
+<file path="src/prompt/generator.js">
+// src/prompt/generator.js
+
+import { generateCodingPrompt } from "./codingEngine.js";
+
+export function generatePrompt(config) {
+    const {
+        mediaType,
+        model,
+        modelId,
+        language,
+        persona,
+        task,
+        audience,
+        style,
+        ratio,
+        isCompliance,
+        includeTests,
+        // allow other language-specific fields to be passed through
+        ...rest
+    } = config;
+
+    const resolvedModel = model || modelId || "(model)";
+
+    // 1. กรณีเป็นงานสร้างภาพ (Image Generation)
+    if (mediaType === 'image') {
+        return `### IMAGE GENERATION PROMPT (${resolvedModel}) ###\n` +
+               `/imagine prompt: A high quality visual depicting ${task}, designed in a ${style} style. Highest fidelity, sharp focus, 8k resolution --ar ${ratio}`;
+    }
+
+    // 2. กรณีเป็นงาน Code -> ใช้ codingEngine
+    if (mediaType === 'code') {
+        // Prepare inputs for coding engine
+        const inputs = {
+            ...rest,
+            taskGoal: task,
+            codeStyle: style,
+            includeTests: !!includeTests,
+            isCompliance: !!isCompliance
+        };
+
+        const codingPrompt = generateCodingPrompt(language || 'javascript', inputs);
+
+        // Wrap with system header including persona and model
+        let promptResult = `### SYSTEM INSTRUCTION FOR ${resolvedModel} ###\n\n`;
+        promptResult += `[ROLE & PERSONA]\n- Act as an expert ${persona}.\n\n`;
+        promptResult += `[OBJECTIVE / TASK]\n- Your primary mission is to: ${task}\n\n`;
+        promptResult += `---\n`;
+        promptResult += codingPrompt;
+        return promptResult;
+    }
+
+    // 3. กรณีเป็นงาน Text, Data หรืออื่นๆ (Structured System Prompt)
+    let promptResult = `### SYSTEM INSTRUCTION FOR ${resolvedModel} ###\n\n`;
+    promptResult += `[ROLE & PERSONA]\n- Act as an expert ${persona}.\n\n`;
+    promptResult += `[OBJECTIVE / TASK]\n- Your primary mission is to: ${task}\n\n`;
+    promptResult += `[TARGET AUDIENCE]\n- Tailor your tone, depth, and vocabulary for: ${audience}\n\n`;
+    promptResult += `[STYLE & OUTPUT GUIDELINES]\n- Format & Tone: ${style}\n- Use clear headings, bullet points, or structured code/tables where appropriate.\n`;
+    
+    // หากเปิดโหมดรักษาความปลอดภัยข้อมูล (PDPA / GDPR)
+    if (isCompliance) {
+        promptResult += `\n[🚨 COMPLIANCE & DATA SAFETY MANDATE]\n` +
+                        `- You MUST strictly adhere to GDPR & PDPA privacy standards.\n` +
+                        `- Anonymize all personal data, financial credentials, and proprietary business secrets.\n` +
+                        `- Ensure zero copyright violation or hallucinated citations.`;
+    }
+
+    return promptResult;
+}
+</file>
+
+<file path="src/prompt/historyBuilder.js">
+// src/prompt/historyBuilder.js
+// Minimal history builder to satisfy router import and provide basic history rendering.
+import { getHistoryList } from "../services/firestore.js";
+import { Spinner, SkeletonCard } from "../components/ui.js";
+
+export async function initHistoryBuilder() {
+    const grid = document.getElementById('historyCardsGrid');
+    if (!grid) return;
+
+    // show skeletons + spinner
+    grid.innerHTML = Array.from({length: 4}).map(() => SkeletonCard()).join('\n');
+    const loadingEl = document.createElement('div');
+    loadingEl.className = 'col-span-full text-center py-6 text-slate-400 text-xs';
+    loadingEl.innerHTML = Spinner(20, 'กำลังโหลดประวัติ...');
+    grid.parentNode.insertBefore(loadingEl, grid);
+
+    try {
+        const list = await getHistoryList();
+        loadingEl.remove();
+        if (!list || list.length === 0) {
+            grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 text-xs">ยังไม่มีประวัติการสร้าง</div>`;
+            return;
+        }
+
+        grid.innerHTML = list.map(item => `
+            <div class="bg-slate-900 p-4 rounded-lg border border-slate-800">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">${item.persona || item.language || 'Prompt'}</h3>
+                        <p class="text-xs text-slate-400">${item.model || item.modelId || ''} • ${new Date(item.createdAt?.seconds ? item.createdAt.seconds*1000 : Date.now()).toLocaleString()}</p>
+                    </div>
+                </div>
+                <pre class="text-sm text-slate-300 font-mono p-3 bg-slate-950 rounded">${(item.content || '').replace(/</g,'&lt;')}</pre>
+            </div>
+        `).join('\n');
+
+    } catch (err) {
+        console.error('Failed to load history:', err);
+        loadingEl.remove();
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-rose-400 text-xs">เกิดข้อผิดพลาดในการโหลดประวัติ: ${err.message || 'Unknown'}</div>`;
+    }
+}
+</file>
+
+<file path="src/prompt/languageManager.js">
+// src/prompt/languageManager.js
+import { codingLanguagesDB } from "../data/codingLanguages.js";
+
+export function initLanguageManager() {
+    const container = document.getElementById("languageManager");
+    if (!container) return;
+
+    // Clear container
+    container.innerHTML = "";
+
+    // Title
+    const title = document.createElement("h3");
+    title.innerText = "จัดการภาษาโค้ด (Dev)";
+    title.className = "text-lg font-medium mb-2";
+    container.appendChild(title);
+
+    // Language select
+    const selectWrapper = document.createElement("div");
+    selectWrapper.className = "mb-3";
+    const langSelect = document.createElement("select");
+    langSelect.id = "codingLanguageSelect";
+    langSelect.className = "border p-2 rounded w-full";
+
+    Object.entries(codingLanguagesDB).forEach(([key, meta]) => {
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.text = meta.name;
+        langSelect.appendChild(opt);
+    });
+
+    selectWrapper.appendChild(langSelect);
+    container.appendChild(selectWrapper);
+
+    // Description
+    const desc = document.createElement("p");
+    desc.id = "codingLanguageDescription";
+    desc.className = "text-sm text-gray-600 mb-3";
+    container.appendChild(desc);
+
+    // Fields area
+    const fieldsArea = document.createElement("div");
+    fieldsArea.id = "codingLanguageFields";
+    fieldsArea.className = "mb-3 space-y-2";
+    container.appendChild(fieldsArea);
+
+    // Preview area
+    const preview = document.createElement("pre");
+    preview.id = "codingLanguagePreview";
+    preview.className = "bg-gray-100 p-2 rounded text-sm overflow-auto";
+    preview.style.maxHeight = "200px";
+    container.appendChild(preview);
+
+    // Action buttons
+    const actions = document.createElement("div");
+    actions.className = "flex gap-2 mt-3";
+
+    const copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "px-3 py-1 bg-indigo-600 text-white rounded";
+    copyBtn.innerText = "📋 คัดลอก JSON";
+
+    const logBtn = document.createElement("button");
+    logBtn.type = "button";
+    logBtn.className = "px-3 py-1 bg-gray-200 rounded";
+    logBtn.innerText = "🔍 แสดงใน Console";
+
+    actions.appendChild(copyBtn);
+    actions.appendChild(logBtn);
+    container.appendChild(actions);
+
+    // Helpers
+    function renderFieldsFor(languageKey) {
+        const meta = codingLanguagesDB[languageKey];
+        if (!meta) return;
+        desc.innerText = meta.description || "";
+
+        fieldsArea.innerHTML = "";
+        meta.fields.forEach(field => {
+            const wrapper = document.createElement("div");
+            wrapper.className = "flex flex-col";
+
+            const label = document.createElement("label");
+            label.htmlFor = field + "Input";
+            label.className = "text-sm font-medium mb-1";
+            // Make label more readable by separating camelCase
+            label.innerText = field.replace(/([a-z])([A-Z])/g, "$1 $2");
+
+            const input = document.createElement("input");
+            input.id = field + "Input";
+            input.dataset.field = field;
+            input.className = "border p-2 rounded w-full";
+            input.type = "text";
+            input.placeholder = "ใส่ค่า " + label.innerText;
+
+            input.addEventListener("input", updatePreview);
+
+            wrapper.appendChild(label);
+            wrapper.appendChild(input);
+            fieldsArea.appendChild(wrapper);
+        });
+
+        updatePreview();
+    }
+
+    function getCurrentLanguageData() {
+        const lang = langSelect.value;
+        const meta = codingLanguagesDB[lang];
+        const values = {};
+        (meta.fields || []).forEach(field => {
+            const el = document.getElementById(field + "Input");
+            values[field] = el ? el.value : "";
+        });
+        return {
+            language: lang,
+            name: meta.name,
+            description: meta.description,
+            values
+        };
+    }
+
+    function updatePreview() {
+        const data = getCurrentLanguageData();
+        preview.innerText = JSON.stringify(data, null, 2);
+    }
+
+    // Event listeners for actions
+    copyBtn.addEventListener("click", () => {
+        const data = getCurrentLanguageData();
+        navigator.clipboard.writeText(JSON.stringify(data, null, 2)).then(() => {
+            const old = copyBtn.innerText;
+            copyBtn.innerText = "✅ คัดลอกแล้ว";
+            setTimeout(() => copyBtn.innerText = old, 1500);
+        }).catch(() => {
+            copyBtn.innerText = "❌ ไม่สามารถคัดลอก";
+            setTimeout(() => copyBtn.innerText = "📋 คัดลอก JSON", 1500);
+        });
+    });
+
+    logBtn.addEventListener("click", () => {
+        console.log("[Language Manager]", getCurrentLanguageData());
+        logBtn.innerText = "✅ แสดงแล้ว";
+        setTimeout(() => logBtn.innerText = "🔍 แสดงใน Console", 1500);
+    });
+
+    // Initialize
+    renderFieldsFor(langSelect.value);
+    langSelect.addEventListener("change", () => renderFieldsFor(langSelect.value));
+}
+</file>
+
+<file path="src/prompt/libraryBuilder.js">
+// src/prompt/libraryBuilder.js
+import { templatesDB } from "../data/templatesDB.js";
+import { SkeletonCard } from "../components/ui.js";
+
+export function initLibraryBuilder() {
+    const searchInput = document.getElementById("librarySearchInput");
+    const categorySelect = document.getElementById("libraryCategorySelect");
+    const cardsGrid = document.getElementById("libraryCardsGrid");
+
+    if (!cardsGrid) return;
+
+    function renderSkeletons(count = 6) {
+        cardsGrid.innerHTML = Array.from({length: count}).map(() => SkeletonCard()).join('\n');
+    }
+
+    function renderTemplates() {
+        // show quick skeleton while computing (very fast but improves perceived performance)
+        renderSkeletons(6);
+
+        const query = (searchInput?.value || "").toLowerCase();
+        const selectedCat = categorySelect?.value || "ALL";
+
+        const filtered = templatesDB.filter(item => {
+            const matchesSearch = item.title.toLowerCase().includes(query) || 
+                                  item.prompt.toLowerCase().includes(query) ||
+                                  item.tags.some(t => t.toLowerCase().includes(query));
+            const matchesCategory = selectedCat === "ALL" || item.category === selectedCat;
+            return matchesSearch && matchesCategory;
+        });
+
+        if (filtered.length === 0) {
+            cardsGrid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 text-xs">ไม่พบแม่แบบที่ตรงกับคำค้นหา</div>`;
+            return;
+        }
+
+        cardsGrid.innerHTML = filtered.map(item => `
+            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition">
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="bg-slate-800 text-indigo-400 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-slate-700">${item.category}</span>
+                    </div>
+                    <h3 class="text-sm font-bold text-white mb-2">${item.title}</h3>
+                    <p class="text-xs text-slate-400 bg-slate-950 p-3 rounded-xl border border-slate-900 font-mono mb-3 line-clamp-3">${item.prompt}</p>
+                </div>
+                <div class="flex justify-between items-center pt-2 border-t border-slate-800/60">
+                    <div class="flex gap-1">${item.tags.map(t => `<span class="text-[9px] text-slate-500">#${t}</span>`).join(' ')}</div>
+                    <button data-copy="${encodeURIComponent(item.prompt)}" class="lib-copy-btn bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-1.5 px-3 rounded-xl transition">📋 คัดลอก</button>
+                </div>
+            </div>
+        `).join('');
+
+        // Event listener สำหรับปุ่มคัดลอก
+        document.querySelectorAll(".lib-copy-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const text = decodeURIComponent(e.currentTarget.dataset.copy);
+                navigator.clipboard.writeText(text).then(() => {
+                    e.currentTarget.innerText = "✅ คัดลอกแล้ว";
+                    setTimeout(() => { e.currentTarget.innerText = "📋 คัดลอก"; }, 2000);
+                });
+            });
+        });
+    }
+
+    searchInput?.addEventListener("input", renderTemplates);
+    categorySelect?.addEventListener("change", renderTemplates);
+    renderTemplates();
+}
+</file>
+
+<file path="src/prompt/validator.js">
+
+</file>
+
+<file path="src/services/analytics.js">
+
+</file>
+
+<file path="src/services/firestore.js">
+// src/services/firestore.js
+import { db } from "../firebase/firebase.js";
+import { 
+    collection, 
+    addDoc, 
+    getDocs, 
+    deleteDoc, 
+    doc, 
+    query, 
+    orderBy, 
+    serverTimestamp 
+} from "firebase/firestore";
+
+// 1. ฟังก์ชันบันทึกประวัติการสร้าง Prompt (History)
+export async function saveToHistory(promptData) {
+    try {
+        const historyRef = collection(db, "history");
+        const docRef = await addDoc(historyRef, {
+            ...promptData,
+            createdAt: serverTimestamp()
+        });
+        console.log("✅ บันทึกประวัติสำเร็จ ID:", docRef.id);
+        return docRef.id;
+    } catch (error) {
+        console.error("❌ บันทึกประวัติไม่สำเร็จ:", error);
+        throw error;
+    }
+}
+
+// 2. ฟังก์ชันเก็บรายการโปรด (Favorites)
+export async function saveToFavorites(promptData) {
+    try {
+        const favRef = collection(db, "favorites");
+        const docRef = await addDoc(favRef, {
+            ...promptData,
+            savedAt: serverTimestamp()
+        });
+        console.log("⭐ บันทึกรายการโปรดสำเร็จ ID:", docRef.id);
+        return docRef.id;
+    } catch (error) {
+        console.error("❌ บันทึกรายการโปรดไม่สำเร็จ:", error);
+        throw error;
+    }
+}
+
+// 3. ฟังก์ชันดึงประวัติทั้งหมดมาแสดงผล (เรียงจากใหม่ไปเก่า)
+export async function getHistoryList() {
+    try {
+        const q = query(collection(db, "history"), orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        const list = [];
+        querySnapshot.forEach((doc) => {
+            list.push({ id: doc.id, ...doc.data() });
+        });
+        return list;
+    } catch (error) {
+        console.error("❌ ดึงประวัติไม่สำเร็จ:", error);
+        return [];
+    }
+}
+
+// 4. ฟังก์ชันดึงรายการโปรดทั้งหมดมาแสดงผล (เรียงจากใหม่ไปเก่า)
+export async function getFavoritesList() {
+    try {
+        const q = query(collection(db, "favorites"), orderBy("savedAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        const list = [];
+        querySnapshot.forEach((doc) => {
+            list.push({ id: doc.id, ...doc.data() });
+        });
+        return list;
+    } catch (error) {
+        console.error("❌ ดึงรายการโปรดไม่สำเร็จ:", error);
+        // Rethrow so callers can implement retry/backoff on transient errors
+        throw error;
+    }
+}
+
+// 5. ฟังก์ชันลบข้อมูลออกจากระบบ
+export async function deletePromptItem(collectionName, id) {
+    try {
+        await deleteDoc(doc(db, collectionName, id));
+        console.log(`🗑️ ลบข้อมูล ${id} ออกจาก ${collectionName} เรียบร้อย`);
+        return true;
+    } catch (error) {
+        console.error("❌ ลบข้อมูลไม่สำเร็จ:", error);
+        return false;
+    }
+}
+</file>
+
+<file path="src/services/logger.js">
+
+</file>
+
+<file path="src/services/storage.js">
+
+</file>
+
+<file path="src/styles/main.css">
+:root {
+    color-scheme: dark;
+    font-family: Inter, 'Segoe UI', system-ui, sans-serif;
+    background-color: #070a12;
+    color: #d1d5db;
+    --bg-primary: #070a12;
+    --bg-surface: #0d1322;
+    --bg-surface-soft: #111b2f;
+    --border-surface: rgba(94, 234, 212, 0.1);
+    --text-primary: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-accent: #7dd3fc;
+    --accent: #5eead4;
+    --accent-strong: #8b5cf6;
+    --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, 'Segoe UI', system-ui, sans-serif;
+    background: radial-gradient(circle at top, rgba(94, 234, 212, 0.08), transparent 24%), linear-gradient(180deg, #070a12 0%, #05090f 100%);
+    color: var(--text-primary);
+}
+
+button, input, select, textarea {
+    font: inherit;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.app-shell {
+    min-height: 100vh;
+    background: var(--bg-primary);
+}
+
+.page-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-surface);
+    border-radius: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.backglass {
+    background: rgba(12, 19, 34, 0.76);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.30);
+}
+
+.page-panel {
+    background: rgba(12, 19, 34, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.75rem;
+    box-shadow: 0 18px 70px rgba(0, 0, 0, 0.28);
+}
+
+.page-header {
+    background: linear-gradient(90deg, #09121f 0%, #0d1322 100%);
+    border-bottom: 1px solid rgba(94, 234, 212, 0.08);
+}
+
+.badge-cyber {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.85rem;
+    background: rgba(28, 67, 127, 0.18);
+    border-radius: 9999px;
+    border: 1px solid rgba(94, 234, 212, 0.12);
+    color: #93c5fd;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+}
+
+.pill-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.pill-btn:hover {
+    transform: translateY(-1px);
+}
+
+.pill-btn-primary {
+    background: linear-gradient(135deg, #5eead4 0%, #7c3aed 100%);
+    color: #020617;
+    box-shadow: 0 14px 30px rgba(94, 234, 212, 0.22);
+}
+
+.pill-btn-secondary {
+    background: rgba(14, 61, 105, 0.85);
+    color: #d1d5db;
+    border: 1px solid rgba(94, 234, 212, 0.14);
+}
+
+.terminal-box {
+    background: #07101e;
+    border: 1px solid rgba(34, 58, 94, 0.45);
+    border-radius: 1.75rem;
+    box-shadow: inset 0 0 0 1px rgba(94, 234, 212, 0.08), 0 20px 50px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+}
+
+.terminal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(94, 234, 212, 0.07);
+    background: rgba(11, 24, 42, 0.65);
+}
+
+.terminal-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #7dd3fc;
+}
+
+.terminal-label::before,
+.terminal-label::after {
+    color: #38bdf8;
+}
+
+.terminal-label::before { content: '['; }
+.terminal-label::after { content: ']'; }
+
+.terminal-body {
+    padding: 1.25rem;
+    color: #cbd5e1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92rem;
+    line-height: 1.75;
+    min-height: 24rem;
+    max-height: 60vh;
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+
+.section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.68rem;
+    color: #7dd3fc;
+}
+
+.section-panel {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.5rem;
+    padding: 1rem;
+}
+
+.model-chip,
+.preset-chip,
+.tab-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.1rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: #cbd5e1;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: transform 150ms ease, background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.model-chip:hover,
+.preset-chip:hover,
+.tab-pill:hover {
+    transform: translateY(-1px);
+    background: rgba(94, 234, 212, 0.12);
+    border-color: rgba(94, 234, 212, 0.16);
+    color: #f8fafc;
+}
+
+.model-chip {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+    min-height: 88px;
+    justify-content: space-between;
+}
+
+.model-chip small {
+    color: #94a3b8;
+    font-size: 0.72rem;
+}
+
+.model-chip.selected {
+    background: rgba(94, 234, 212, 0.16);
+    border-color: rgba(94, 234, 212, 0.35);
+    color: #f8fafc;
+}
+
+.tab-pill-active {
+    background: rgba(94, 234, 212, 0.12);
+    border-color: rgba(94, 234, 212, 0.3);
+    color: #f8fafc;
+}
+
+.terminal-stat {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9999px;
+    padding: 0.5rem 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: #a5f3fc;
+}
+
+.toast-wrapper {
+    position: relative;
+    min-height: 2.75rem;
+}
+
+.toast-toast {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 0.8rem 1.1rem;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(94, 234, 212, 0.16);
+    border-radius: 1.5rem;
+    color: #f8fafc;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 180ms ease, transform 180ms ease;
+    z-index: 30;
+}
+
+.toast-toast.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.terminal-box.terminal-fullscreen {
+    position: fixed;
+    inset: 1rem;
+    z-index: 70;
+    width: calc(100% - 2rem);
+    max-width: none;
+    min-height: calc(100% - 2rem);
+    border-radius: 2rem;
+    background: rgba(5, 11, 20, 0.94);
+}
+
+.terminal-box.terminal-fullscreen .terminal-body {
+    max-height: none;
+    flex: 1 1 auto;
+}
+
+.mobile-tab-switcher {
+    display: none;
+    gap: 0.75rem;
+}
+
+.mobile-tab-panel {
+    display: block;
+}
+
+@media (max-width: 1024px) {
+    .mobile-tab-switcher {
+        display: flex;
+    }
+    .mobile-tab-panel {
+        display: none;
+    }
+    .mobile-tab-panel.active {
+        display: block;
+    }
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+    color: #e2e8f0;
+}
+
+.section-title span {
+    background: rgba(94, 234, 212, 0.08);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.68rem;
+    color: #7dd3fc;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+.sidebar {
+    width: 280px;
+    background: rgba(11, 22, 41, 0.95);
+    border-right: 1px solid rgba(94, 234, 212, 0.08);
+    padding: 1.25rem;
+}
+
+.sidebar-item {
+    display: block;
+    padding: 0.95rem 1rem;
+    border-radius: 1.25rem;
+    color: #cbd5e1;
+    transition: background 150ms ease, color 150ms ease;
+}
+
+.sidebar-item:hover,
+.sidebar-item:focus {
+    background: rgba(94, 234, 212, 0.08);
+    color: #e2e8f0;
+    outline: none;
+}
+
+.navbar {
+    min-height: 64px;
+    background: rgba(4, 12, 22, 0.94);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(18px);
+}
+
+.navbar-horizontal .navbar-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.navbar .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #7dd3fc;
+}
+
+.nav-subtitle {
+    color: #94a3b8;
+    font-size: 0.78rem;
+}
+
+.nav-pill-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+.nav-pill-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.nav-pill {
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: #cbd5e1;
+    padding: 0.85rem 1.1rem;
+    border-radius: 9999px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: transform 150ms ease, background 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+    scroll-snap-align: center;
+}
+
+.nav-pill:hover {
+    transform: translateY(-1px);
+    background: rgba(94, 234, 212, 0.12);
+    border-color: rgba(94, 234, 212, 0.22);
+    color: #f8fafc;
+}
+
+.nav-pill.active {
+    color: #f8fafc;
+    background: rgba(94, 234, 212, 0.18);
+    border-color: rgba(94, 234, 212, 0.35);
+    box-shadow: 0 0 18px rgba(94, 234, 212, 0.18);
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-badge {
+    padding: 0.7rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #94a3b8;
+    font-size: 0.82rem;
+}
+
+@media (max-width: 1024px) {
+    .navbar {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        padding: 0.75rem 16px;
+    }
+
+    .nav-right {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+input, select, textarea {
+    background: #08121f;
+    border: 1px solid rgba(94, 234, 212, 0.12);
+    color: #e2e8f0;
+    border-radius: 1rem;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: 2px solid rgba(94, 234, 212, 0.3);
+    outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+    }
+    .page-card {
+        border-radius: 1.5rem;
+    }
+}
+</file>
+
+<file path="src/styles/variables.css">
+
+</file>
+
+<file path="src/utils/formatter.js">
+
+</file>
+
+<file path="src/utils/helper.js">
+
+</file>
+
+<file path="src/utils/validator.js">
+
+</file>
+
+<file path="src/main.js">
+import "./styles/main.css";
+
+import { startApplication } from "./app/app.js";
+
+startApplication();
+</file>
+
+<file path="all_code.txt">
+// src/app/app.js
 import { render, navigate } from "./router.js";
 
 export function startApplication() {
@@ -2372,3 +5059,128 @@ import "./styles/main.css";
 import { startApplication } from "./app/app.js";
 
 startApplication();
+</file>
+
+<file path="export-code.js">
+import fs from 'fs';
+import path from 'path';
+
+const rootDir = './src';
+const outputFile = 'all_code.txt';
+let combinedCode = '';
+
+function readFilesRecursively(dir) {
+    const files = fs.readdirSync(dir);
+
+    files.forEach(file => {
+        const fullPath = path.join(dir, file);
+        const stat = fs.statSync(fullPath);
+
+        if (stat.isDirectory()) {
+            readFilesRecursively(fullPath);
+        } else if (file.endsWith('.js') || file.endsWith('.html') || file.endsWith('.css')) {
+            const content = fs.readFileSync(fullPath, 'utf8');
+            combinedCode += `\n====================================\n`;
+            combinedCode += `FILE: ${fullPath}\n`;
+            combinedCode += `====================================\n\n`;
+            combinedCode += content + `\n`;
+        }
+    });
+}
+
+try {
+    readFilesRecursively(rootDir);
+    fs.writeFileSync(outputFile, combinedCode, 'utf8');
+    console.log('✅ รวมโค้ดสำเร็จ! เปิดไฟล์ all_code.txt เพื่อคัดลอกได้เลยครับ');
+} catch (error) {
+    console.error('❌ เกิดข้อผิดพลาด:', error.message);
+}
+</file>
+
+<file path="index.html">
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Prompt Suite Infinite v2.0</title>
+
+</head>
+
+<body>
+
+    <div id="app"></div>
+
+    <script type="module" src="/src/main.js"></script>
+
+</body>
+
+</html>
+</file>
+
+<file path="package.json">
+{
+  "name": "ai-prompt-suite-v2",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .js",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "dayjs": "^1.11.21",
+    "firebase": "^12.16.0",
+    "sweetalert2": "^11.26.25",
+    "toastify-js": "^1.12.0",
+    "uuid": "^14.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "eslint": "^10.8.0",
+    "prettier": "^3.9.6",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.1.5"
+  }
+}
+</file>
+
+<file path="README.md">
+"# ai-prompt-suite-v2" 
+"# ai-prompt-suite-v2"
+</file>
+
+<file path="vite.config.js">
+import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
+
+export default defineConfig({
+  plugins: [
+    tailwindcss()
+  ],
+
+  server: {
+    port: 5173,
+    open: true
+  },
+
+  build: {
+    outDir: "dist"
+  }
+});
+</file>
+
+<file path=".gitignore">
+node_modules
+node_modules
+</file>
+
+</files>

@@ -1,5 +1,4 @@
 // src/components/ui.js
-// Small shared UI helpers (spinner, skeleton card) used by multiple builders
 export function Spinner(size = 24, text = '') {
     return `
     <div class="flex items-center justify-center gap-2">
